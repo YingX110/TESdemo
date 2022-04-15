@@ -59,6 +59,7 @@ pname, pcounty, pstate, pcountry, processes = create_process(NumofScales)
 
 
 '''load data'''
+WorldInfo = {'Emission': 4.21E10, 'Sink': 9.64E9, 'Population': 7.59E9, 'Area': 1.49E8, 'GDP': 8.63E13} # units: ton/yr, ton/yr, people, km^2, $
 locS = pd.read_csv('localS_3pro.csv')
 county = pd.read_csv('AllCounty1.csv')
 state = pd.read_csv('AllState1.csv')
