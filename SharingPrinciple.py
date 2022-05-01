@@ -32,9 +32,9 @@ SPinfo = {'world': World, 'nation': Nation, 'state': State, 'county': County}
 '''get sharing principles between scales
 e.g. list = [global, national]
 principle = 'emission'
-loc = {'global': gname, 'nation': nname, 'state': sname, 'county': cname}
+loc = {'world': gname, 'nation': nname, 'state': sname, 'county': cname}
 '''
-def SP_CAL(list, principle, loc):
+def SP_CAL(list, principle, loc, SPinfo):
     d1 = SPinfo[list[0]][principle] #nation
     d2 = SPinfo[list[1]][principle] #world
     s1 = loc[list[0]] #[n1, n2, n3 ...]
@@ -46,19 +46,19 @@ def SP_CAL(list, principle, loc):
     return np.diag(sp_lst)
 
 
-def subset(list):
-    listofpairs = []
-    for i in range(len(list)-1):
-        pair = [list[i], list[i+1]]
-        listofpairs.append(pair)
-    return listofpairs
+def subset(l):
+    lpairs = []
+    for i in range(len(l)-1):
+        pair = [l[i], l[i+1]]
+        lpairs.append(pair)
+    return lpairs
 
 
 def sharing_principle(loc, nScales):
     lst = []
     SPrinciple = input('Sharing Principle (gdp, inverse of gdp, emission, area, population): ')
     for i in range(nScales):
-        scale = input('Geo-scale' + str(i) + ': ')
+        scale = input('Geo-scale ' + str(i) + '(from small to large): ')
         lst.append(scale)
 
     pairlist = subset(lst)
@@ -66,4 +66,6 @@ def sharing_principle(loc, nScales):
     for ele in pairlist:
         SP_Matrix.append(SP_CAL(ele, SPrinciple, loc))
     return SP_Matrix
+
+
 
