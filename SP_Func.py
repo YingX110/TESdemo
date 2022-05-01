@@ -21,8 +21,8 @@ def sharing_principle(loc, nScales, SPinfo):
 
     lst = []
     SPrinciple = input('Sharing Principle (gdp, inverse of gdp, emission, area, population): ')
-    for i in range(nScales):
-        scale = input('Geo-scale ' + str(i) + '(county, state, nation, world): ')
+    for i in range(nScales+1):
+        scale = input('Geo-scale ' + str(i) + '(local, county, state, nation, world): ')
         lst.append(scale)
 
     pairlist = subset(lst)
