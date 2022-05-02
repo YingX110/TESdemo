@@ -22,7 +22,7 @@ def sharing_principle(loc, nScales, SPinfo):
 
     lst = []
     SPrinciple = input('Sharing Principle (gdp, inverse of gdp, emission, area, population): ')
-    for i in range(nScales+1):
+    for i in range(nScales):
         scale = input('Geo-scale ' + str(i) + '(local, county, state, nation, world): ')
         lst.append(scale)
 
@@ -31,3 +31,7 @@ def sharing_principle(loc, nScales, SPinfo):
     for ele in pairlist:
         SP_Matrix.append(SP_CAL(ele, SPrinciple, loc, SPinfo))
     return SP_Matrix
+
+
+if __name__ == '__main__':
+    sharing_principle()

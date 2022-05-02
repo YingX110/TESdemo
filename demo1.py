@@ -55,14 +55,15 @@ def Cal_S(n, Sup, SP):
     return(St)
 
 NumofScales = int(input("Enter the number of scales: "))
+NumofProcess = int(input("Enter the number of processes: "))
 FinalDemand = int(input("Enter the final demand of products: "))
-pname, pcounty, pstate, pcountry, processes = create_process(NumofScales)
-pworld = ['World'] * len(pname)
+pname, pcounty, pstate, pcountry, processes = create_process(NumofProcess)
+pworld = ['World'] * NumofProcess
 
 #############################################################################################
-'''load data '''
+'''load supply data'''
 #WorldInfo = {'Emission': 4.21E10, 'Sink': 9.64E9, 'Population': 7.59E9, 'Area': 1.49E8, 'GDP': 8.63E13} # units: ton/yr, ton/yr, people, km^2, $
-locS = pd.read_csv('localS_test.csv')
+#locS = pd.read_csv('localS_test.csv')
 county = pd.read_csv('CountyCO2.csv')
 state = pd.read_csv('StateCO2.csv')
 country = pd.read_csv('CountryCO2.csv')
@@ -119,7 +120,7 @@ Cmatrix = np.zeros((Amatrix.shape[0], C_c))
 '''generate eco martix'''
 # localS = np.matrix(locS.values)
 localS = get_matrix(local, pname)
-countyS = get_matrix(county, pcounty)
+# countyS = get_matrix(county, pcounty)
 stateS = get_matrix(state, pstate)
 countryS = get_matrix(country, pcountry)
 worldS = get_matrix(world, pworld)
@@ -130,7 +131,7 @@ S = [localS, stateS, countryS, worldS]
 # SP = [county2local, state2county]
 SP = sharing_principle(loc, NumofScales, SPinfo)
 
-Smatrix = Cal_S(NumofScales, S, SP)
+Smatrix = Cal_S(NumofProcess, S, SP)
 me = 1 + np.zeros((Smatrix.shape[0], 1))
 
 
