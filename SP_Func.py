@@ -1,6 +1,7 @@
 import numpy as np
 
 def sharing_principle(loc, nScales, SPinfo):
+
     def SP_CAL(list, principle, loc, SPri):
         d1 = SPri[list[0]][principle]  # nation
         d2 = SPri[list[1]][principle]  # world
