@@ -142,7 +142,7 @@ DI = np.hstack((Dmatrix, Imatrix))
 CS = np.vstack((Cmatrix, -Smatrix))
 
 Lmatrix = np.vstack((A0, DI))
-Rmatrix = Fmatrix - CS * me
+Rmatrix = Fmatrix - np.mat(CS) * np.mat(me)
 
 
 '''Calculation of scaling factor and '''

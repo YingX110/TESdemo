@@ -34,4 +34,6 @@ def sharing_principle(loc, nScales, SPinfo):
 
 
 if __name__ == '__main__':
-    sharing_principle()
+    list = ['local', 'state', 'nation', 'world']
+    principle = 'emission'
+    sharing_principle(list, principle)
