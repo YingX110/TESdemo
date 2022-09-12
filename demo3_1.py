@@ -18,17 +18,6 @@ class Process:
         self.supply = {}
 
 
-    # def build_proc(self, info):
-        
-    #     self.name = info['name'] # this is used for geo-unit process: 'county', 'state', 'country'...
-    #     self.type = info['type'] # LCA or geo unit
-    #     self.location = info['location'] # this is used for geo-unit process: fips for county, state name for states
-    #     self.scales = info['scales']
-    #     self.f = info['final demand']
-    #     # self.local_demand = info['ES local demand']
-    #     self.local_supply = info['ES local supply']
-    #     self.supply = {}
-
 
     def cal_supply(self, proc_info, SP_info):
         '''
@@ -88,19 +77,6 @@ class LcaSystem:
             # process.build_proc(p)
             process.cal_supply(p, SP_info)
             self.processes.append(process)
-
-        # for i in range(data.shape[0]): 
-        #     '''
-        #     1. generate Process for each row from the dataframe
-        #     2. add each Process to the LcaSystem
-        #     !!Todo
-        #     decide the input data structure: dataframe or dictionary? whether to have a function to formatting the data
-        #     '''
-        #     df_proc = data.loc[[i]] # -> structure as info
-        #     process = Process()
-        #     process.build_proc(df_proc)
-        #     process.cal_supply(df_proc, SP_info)
-        #     self.processes.append(process) # a list contains all processes
         
 
     def AD_matrix(self):
@@ -183,112 +159,92 @@ class LcaSystem:
         return res
        
 
-
-procs = {
-    '001':{
-        'name': 'fertilizer',
-        'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
-        'type': 'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'C sequestration': 3200
-        },
-        'final demand': 0,
-        'scales': {
-            'C sequestration': {
-                'State': 'Wisconsin',
-                'World': 'World'
+if __name__ == 'main':
+    procs = {
+        '001':{
+            'name': 'fertilizer',
+            'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
+            'type': 'LCA',
+            'sharing principle method': 'population',
+            'ES local supply': {
+                'C sequestration': 3200
+            },
+            'final demand': 0,
+            'scales': {
+                'C sequestration': {
+                    'State': 'Wisconsin',
+                    'World': 'World'
+                }
+            },
+            'SP info': {
+                'C sequestration': {
+                    'demand': 6400,
+                    'population': 100,
+                    'gdp': 50000,
+                    'inverse gdp': 1/50000,
+                    'area': 2000
+                }
             }
         },
-        'SP info': {
-            'C sequestration': {
-                'demand': 6400,
-                'population': 100,
-                'gdp': 50000,
-                'inverse gdp': 1/50000,
-                'area': 2000
-            }
-        }
-    },
-    '002':{
-        'name': 'corn',
-        'location': 'xx rd, Ohio',
-        'type': 'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'C sequestration': 5500
-        },
-        'final demand': 0,
-        'scales': {
-            'C sequestration': {
-                'State': 'Ohio',
-                'World': 'World'
-            }
-        },
-        'SP info': {
-            'C sequestration': {
-                'demand': 11000,
-                'population': 86,
-                'gdp': 60000,
-                'inverse gdp': 1/60000,
-                'area': 2700
-            }
-        }
-    },
-    '003':{
-        'name': 'ethanol',
-        'location': 'xx rd, Ohio',
-        'type':'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'C sequestration': 2100
-        },
-        'final demand': 2000,
-        'scales': {
-            'C sequestration': {
-                'State': 'Ohio',
-                'World': 'World'
+        '002':{
+            'name': 'corn',
+            'location': 'xx rd, Ohio',
+            'type': 'LCA',
+            'sharing principle method': 'population',
+            'ES local supply': {
+                'C sequestration': 5500
+            },
+            'final demand': 0,
+            'scales': {
+                'C sequestration': {
+                    'State': 'Ohio',
+                    'World': 'World'
+                }
+            },
+            'SP info': {
+                'C sequestration': {
+                    'demand': 11000,
+                    'population': 86,
+                    'gdp': 60000,
+                    'inverse gdp': 1/60000,
+                    'area': 2700
+                }
             }
         },
-        'SP info': {
-            'C sequestration': {
-                'demand': 4200,
-                'population': 101,
-                'gdp': 80000,
-                'inverse gdp': 1/80000,
-                'area': 3900
+        '003':{
+            'name': 'ethanol',
+            'location': 'xx rd, Ohio',
+            'type':'LCA',
+            'sharing principle method': 'population',
+            'ES local supply': {
+                'C sequestration': 2100
+            },
+            'final demand': 2000,
+            'scales': {
+                'C sequestration': {
+                    'State': 'Ohio',
+                    'World': 'World'
+                }
+            },
+            'SP info': {
+                'C sequestration': {
+                    'demand': 4200,
+                    'population': 101,
+                    'gdp': 80000,
+                    'inverse gdp': 1/80000,
+                    'area': 3900
+                }
             }
         }
     }
-}
 
-obj1 = LcaSystem()
-obj1.add_process(procs, SP_info)
-obj1.AD_matrix()
-obj1.S_matrix()
-obj1.f_matrix()
-res = obj1.tes_cal()
+    obj1 = LcaSystem()
+    obj1.add_process(procs, SP_info)
+    obj1.AD_matrix()
+    obj1.S_matrix()
+    obj1.f_matrix()
+    res = obj1.tes_cal()
 
-print('done!')
+    print('done!')
 
-        
-# if __name__ == 'main':
- 
-#     Pinfo = {
-#         'name': 'State',
-#         'location': 'Ohio',
-#         'type': 'Geo-unit process',
-#         'ES local supply': None,
-#         'final demand': None,
-#         'scales': {
-#             'C sequestration': {
-#                 'Country': 'United States',
-#                 'World': 'World'
-#             }
-#         },
-#         'ES local demand': {
-#             'C sequestration': 101,
-#             'Water provision': 2347982
-#         }
-#     }
 
