@@ -1,3 +1,4 @@
+from ast import main
 import pandas as pd
 import numpy as np
 from Sharing_Principle_Info import SP_info
@@ -6,7 +7,6 @@ from numpy.linalg import inv
 
 
 class Process:
-
     def __init__(self, info):
         self.name = info['name'] # this is used for geo-unit process: 'county', 'state', 'country'...
         self.type = info['type'] # LCA or geo unit
@@ -80,10 +80,8 @@ class LcaSystem:
         
 
     def AD_matrix(self):
-        mat_A = pd.read_csv('./data/tech_matrix.csv', index_col=0).values # technology matrix
-        mat_D = pd.read_csv('./data/intv_matrix.csv', index_col=0).values # intervention matrix
-        # mat_A = df_A.to_numpy()
-        # mat_D = df_D.to_numpy()
+        mat_A = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0).values # technology matrix
+        mat_D = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0).values # intervention matrix
         self.tech_matrix = mat_A
         self.intv_matrix = mat_D
         self.ProcNum = mat_A.shape[1] # number of processes - column
@@ -159,7 +157,7 @@ class LcaSystem:
         return res
        
 
-if __name__ == 'main':
+if __name__ == '__main__':
     procs = {
         '001':{
             'name': 'fertilizer',
@@ -246,5 +244,7 @@ if __name__ == 'main':
     res = obj1.tes_cal()
 
     print('done!')
+
+
 
 
