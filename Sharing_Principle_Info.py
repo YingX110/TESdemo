@@ -6,7 +6,7 @@ import json
 Ecological data inventory
 
 1. dictionary structure
-2. contains the 
+2. contains the
 '''
 
 county_pop = pd.read_csv('./data_inventory/County_Pop.csv', index_col=0)
