@@ -92,35 +92,6 @@ watershed_totS = [watershed_TotalC]
 
 ###############################################################################
 
-
-# def SP_dict(ls_info, ls_dmd, ls_pub_sup, ls_total_sup, geoname):
-#     dict_info = pd.concat(ls_info, sort=False).to_dict()
-#     dict_dmd = pd.concat(ls_dmd, sort=False).to_dict()
-#     dict_pub_sup = pd.concat(ls_pub_sup, sort=False).to_dict()
-#     dict_total_sup = pd.concat(ls_total_sup, sort=False).to_dict()
-
-#     dict_info['demand'] = dict_dmd
-#     dict_info['public supply'] = dict_pub_sup 
-#     dict_info['total supply'] = dict_total_sup 
-
-#     res = {
-#         geoname: dict_info
-#     }
-
-#     return res
-
-# def df2dic(ls1, ls2):
-#     df = pd.concat(ls1+ls2, sort=False).to_dict()
-#     r = 0
-#     for item in ls1:
-#         r += item.shape[0]
-#     dict1 = df.iloc[:r, :].to_dict()
-#     dict2 = df.iloc[r:, :].to_dict()
-#     return dict1, dict2
-
-
-
-
 def df2dict(*args):
     '''
     Take in lists of dataframes,
@@ -148,13 +119,6 @@ def df2dict(*args):
         
 
 
-# def add_nested_dict(main, new, keyname):
-    
-#     for k in main.keys():
-#         main[k][keyname] = new[k]
-    
-#     return main
-
 def add_nested_dict(main, new):
     for name, ele in new.items():
         for k in main.keys():
@@ -164,6 +128,12 @@ def add_nested_dict(main, new):
 
 
 def SP_construct(info, dmd, pubS, totS):
+    '''
+    Demand, public and total supply contain information for different 
+    ecosystem services which will be a nested dictionary.
+    This is not a general function, it is used to create the data in 
+    the structure at the end of this script.
+    '''
     output = df2dict(info, dmd, pubS, totS)
     main, nest1, nest2, nest3 = output[0], output[1], output[2], output[3]
     NEST = {
@@ -182,22 +152,9 @@ world = SP_construct(world_info, world_dmd, world_pubS, world_totS)
 watershed = SP_construct(watershed_info, watershed_dmd, watershed_pubS, watershed_totS)
 
 
-# output = df2dict(county_info, county_demand, county_supply)
-# main, nest1, nest2 = output[0], output[1], output[2]
-# new = {
-#     'demand': nest1,
-#     'supply': nest2
-# }
-
-# RR = add_nested_dict(main, new)
-
-    
-
-
 
 # SP_info = {**county, **state, **country, **world, **watershed}
 # SP_info = county | state | country | world | watershed
-# print('done!')
 
 
 SP_info = {
@@ -209,10 +166,11 @@ SP_info = {
 }
 
 
-# json_object = json.dumps(SP_info, indent = 4) 
-# with open("SP_info3.json", "w") as outfile:
-#     json.dump(SP_info, outfile)
+json_object = json.dumps(SP_info, indent = 4) 
+with open("SP_info3.json", "w") as outfile:
+    json.dump(SP_info, outfile)
 
+print('done!')
 
 
 # SP_info = {
