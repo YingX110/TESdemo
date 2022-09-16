@@ -3,9 +3,10 @@ import numpy as np
 import json
 
 '''
-!!! Todo:
-should change 'emission' --> 'local demand' in all spreadsheet
-to match with the name in demo3.py
+Ecological data inventory
+
+1. dictionary structure
+2. contains the 
 '''
 
 county_pop = pd.read_csv('./data_inventory/County_Pop.csv', index_col=0)
@@ -19,7 +20,6 @@ county_PubC = pd.read_csv('./data_inventory/County_PubC.csv', index_col=0)
 
 county_info = [county_pop, county_area, county_gdp, county_invgdp]
 county_dmd = [county_Dmd_C]
-# county_supply = [county_PubC, county_TotalC]
 county_pubS = [county_PubC]
 county_totS = [county_TotalC]
 

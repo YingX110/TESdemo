@@ -1,8 +1,13 @@
 from ast import main
 import pandas as pd
 import numpy as np
-from Sharing_Principle_Info import SP_info
+# from Sharing_Principle_Info import SP_info
 from numpy.linalg import inv
+import json
+
+
+f = open('SP_info3.json')
+SP_info = json.load(f)
 
 
 
