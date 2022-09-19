@@ -1,8 +1,8 @@
 from ast import main
 import pandas as pd
 import numpy as np
-# from Sharing_Principle_Info import SP_info
-from numpy.linalg import inv
+# from numpy.linalg import inv
+from scipy.linalg import lu_factor, lu_solve
 import json
 
 
@@ -84,7 +84,6 @@ class LcaSystem:
         
         for p in data.values():
             process = Process(p)
-            # process.build_proc(p)
             process.cal_supply(p, SP_info)
             self.processes.append(process)
         
@@ -100,7 +99,6 @@ class LcaSystem:
 
     @staticmethod
     def diag_mat(m1, m2):
-        # if m1 == []:
         if m1.size == 0:
             return m2
         else:
@@ -162,117 +160,120 @@ class LcaSystem:
         LHS = np.hstack((AD, OI))
         RHS = FO - CS @ me
 
-        res = inv(LHS) @ RHS
+        lu, piv = lu_factor(LHS)
+        res = lu_solve((lu, piv), RHS)
+        # res = inv(LHS) @ RHS
 
         return res
        
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-proc = {
-    'name': 'State',
-    'location': 'Ohio',
-    'type': 'Geo-unit process',
-    'sharing principle method': 'population',
-    'ES local supply': None,
-    'final demand': None,
-    'scales': {
-        'carbon sequestration': {
-            'World': 'World'
-        }
-    }
-}
-
-procs = {
-    '001':{
-        'name': 'fertilizer',
-        'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
-        'type': 'LCA',
+    proc = {
+        'name': 'State',
+        'location': 'Ohio',
+        'type': 'Geo-unit process',
         'sharing principle method': 'population',
-        'ES local supply': {
-            'carbon sequestration': 3200
-        },
-        'final demand': 0,
+        'ES local supply': None,
+        'final demand': None,
         'scales': {
             'carbon sequestration': {
-                'State': 'Wisconsin',
                 'World': 'World'
-            }
-        },
-        'SP info': {
-            'carbon sequestration': {
-                'demand': 6400,
-                'population': 100,
-                'gdp': 50000,
-                'inverse gdp': 1/50000,
-                'area': 2000
-            }
-        }
-    },
-    '002':{
-        'name': 'corn',
-        'location': 'xx rd, Ohio',
-        'type': 'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'carbon sequestration': 5500
-        },
-        'final demand': 0,
-        'scales': {
-            'carbon sequestration': {
-                'State': 'Ohio',
-                'World': 'World'
-            }
-        },
-        'SP info': {
-            'carbon sequestration': {
-                'demand': 11000,
-                'population': 86,
-                'gdp': 60000,
-                'inverse gdp': 1/60000,
-                'area': 2700
-            }
-        }
-    },
-    '003':{
-        'name': 'ethanol',
-        'location': 'xx rd, Ohio',
-        'type':'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'carbon sequestration': 2100
-        },
-        'final demand': 2000,
-        'scales': {
-            'carbon sequestration': {
-                'State': 'Ohio',
-                'World': 'World'
-            }
-        },
-        'SP info': {
-            'carbon sequestration': {
-                'demand': 4200,
-                'population': 101,
-                'gdp': 80000,
-                'inverse gdp': 1/80000,
-                'area': 3900
             }
         }
     }
-}
 
-# ohio = Process(proc)
-# ohio.cal_supply(proc, SP_info)
+    procs = {
+        '001':{
+            'name': 'fertilizer',
+            'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
+            'type': 'LCA',
+            'sharing principle method': 'population',
+            'ES local supply': {
+                'carbon sequestration': 3200
+            },
+            'final demand': 0,
+            'scales': {
+                'carbon sequestration': {
+                    'State': 'Wisconsin',
+                    'World': 'World'
+                }
+            },
+            'SP info': {
+                'carbon sequestration': {
+                    'demand': 6400,
+                    'population': 100,
+                    'gdp': 50000,
+                    'inverse gdp': 1/50000,
+                    'area': 2000
+                }
+            }
+        },
+        '002':{
+            'name': 'corn',
+            'location': 'xx rd, Ohio',
+            'type': 'LCA',
+            'sharing principle method': 'population',
+            'ES local supply': {
+                'carbon sequestration': 5500
+            },
+            'final demand': 0,
+            'scales': {
+                'carbon sequestration': {
+                    'State': 'Ohio',
+                    'World': 'World'
+                }
+            },
+            'SP info': {
+                'carbon sequestration': {
+                    'demand': 11000,
+                    'population': 86,
+                    'gdp': 60000,
+                    'inverse gdp': 1/60000,
+                    'area': 2700
+                }
+            }
+        },
+        '003':{
+            'name': 'ethanol',
+            'location': 'xx rd, Ohio',
+            'type':'LCA',
+            'sharing principle method': 'population',
+            'ES local supply': {
+                'carbon sequestration': 2100
+            },
+            'final demand': 2000,
+            'scales': {
+                'carbon sequestration': {
+                    'State': 'Ohio',
+                    'World': 'World'
+                }
+            },
+            'SP info': {
+                'carbon sequestration': {
+                    'demand': 4200,
+                    'population': 101,
+                    'gdp': 80000,
+                    'inverse gdp': 1/80000,
+                    'area': 3900
+                }
+            }
+        }
+    }
+
+    ohio = Process(proc)
+    ohio.cal_supply(proc, SP_info)
+
+    obj1 = LcaSystem()
+    obj1.add_process(procs, SP_info)
+    obj1.AD_matrix()
+    obj1.S_matrix()
+    obj1.f_matrix()
+
+    res = obj1.tes_cal()
 
 
-# obj1 = LcaSystem()
-# obj1.add_process(procs, SP_info)
-# obj1.AD_matrix()
-# obj1.S_matrix()
-# obj1.f_matrix()
-# res = obj1.tes_cal()
-
-# print('done!')
+    print('done!')
 
 
 
