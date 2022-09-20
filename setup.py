@@ -32,30 +32,51 @@ def dic_process(xl):
         ESs = list(df.ES.unique())
         scale_es = {}
         sp_es = {}
+        dicmeth = {}
+        dicsloc = {}
+        es_idx = 0
+
         for es in ESs:
             dfe = df[df['ES'] == es]
-            gen_col = ['ES','name','location','sharing principle method','ES local supply','final demand']
+            # locS_col = ['ES local supply']
+            # meth_col = ['sharing principle method']
             scale_col = ['scales-general','scales-specific']
             sp_col = ['SP info-name','SP info-amount']
-            dfmain = dfe.loc[:, gen_col]
+            # dflocS = dfe.loc[:, locS_col]
+            # dfmeth = dfe.loc[:, meth_col]
+            spmeth = dfe.loc[dfe['ES'] == es, 'sharing principle method'].values[0]
+            slocal = dfe.loc[dfe['ES'] == es, 'ES local supply'].values[0]
             dfscale = dfe.loc[:, scale_col]
             dfsp = dfe.loc[:, sp_col]
 
-            dfmain = dfmain.dropna().T.reset_index()
-            dfmain = dfmain.drop([0])
+            if es_idx == 0:
+                tech_col = ['ES','name','location','final demand']
+                dftech = dfe.loc[:, tech_col]
+                dftech = dftech.dropna().T.reset_index()
+                dftech = dftech.drop([0])
+                dictech = df_dic(dftech)
+                es_idx = 1
+
+            # dfmeth = dfmeth.dropna().T.reset_index()
+            # dflocS = dflocS.dropna().T.reset_index()
+            dicmeth[es] = spmeth
+            dicsloc[es] = slocal
+
             dfscale = dfscale.dropna()
             dfsp = dfsp.dropna()
+            scale_es[es] = df_dic(dfscale)
+            sp_es[es] = df_dic(dfsp)
 
-            dicmain = df_dic(dfmain)
-            scale_es.update({es: df_dic(dfscale)})
-            sp_es.update({es: df_dic(dfsp)})
-
+            # scale_es.update({es: df_dic(dfscale)})
+            # sp_es.update({es: df_dic(dfsp)})
+        dicmeth = {'sharing principle method': dicmeth}
+        dicsloc = {'ES local supply': dicsloc}
         dicscale = {'scales': scale_es}
         dicsp = {'SP info': sp_es}
 
-        process = dicmain | dicscale | dicsp
+        process = dictech | dicscale | dicsp | dicmeth | dicsloc
     
-    LCAsys.udate(process)
+        LCAsys[st] = process
     
     return LCAsys
 
