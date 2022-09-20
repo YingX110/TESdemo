@@ -3,24 +3,15 @@ Read user input daat from spreadsheet
 constract proc_info as below
 '''
 import pandas as pd
-import numpy as np
 
 
-xl = pd.ExcelFile('./user_input_data/input_template.xlsx')
+xl_u = pd.ExcelFile('./user_input_data/input_uni.xlsx')
+xl_s = pd.ExcelFile('./user_input_data/input_template0.xlsx')
 
 
 def df_dic(df):
-    # df = df.dropna()
-    # df = df.T.reset_index()
     df.columns = ['cat', 'val']
     return dict(zip(df.cat,df.val))
-
-
-# def add_nested_dict(main, new):
-#     for name, ele in new.items():
-#         for k in main.keys():
-#             main[k][name] = ele[k]
-#     return main
 
 
 def dic_process(xl):
@@ -38,27 +29,20 @@ def dic_process(xl):
 
         for es in ESs:
             dfe = df[df['ES'] == es]
-            # locS_col = ['ES local supply']
-            # meth_col = ['sharing principle method']
             scale_col = ['scales-general','scales-specific']
             sp_col = ['SP info-name','SP info-amount']
-            # dflocS = dfe.loc[:, locS_col]
-            # dfmeth = dfe.loc[:, meth_col]
             spmeth = dfe.loc[dfe['ES'] == es, 'sharing principle method'].values[0]
             slocal = dfe.loc[dfe['ES'] == es, 'ES local supply'].values[0]
             dfscale = dfe.loc[:, scale_col]
             dfsp = dfe.loc[:, sp_col]
 
             if es_idx == 0:
-                tech_col = ['ES','name','location','final demand']
+                tech_col = ['name','location','final demand', 'type']
                 dftech = dfe.loc[:, tech_col]
-                dftech = dftech.dropna().T.reset_index()
-                dftech = dftech.drop([0])
+                dftech = dftech.dropna(how='all').T.reset_index() # note change
                 dictech = df_dic(dftech)
                 es_idx = 1
 
-            # dfmeth = dfmeth.dropna().T.reset_index()
-            # dflocS = dflocS.dropna().T.reset_index()
             dicmeth[es] = spmeth
             dicsloc[es] = slocal
 
@@ -67,8 +51,6 @@ def dic_process(xl):
             scale_es[es] = df_dic(dfscale)
             sp_es[es] = df_dic(dfsp)
 
-            # scale_es.update({es: df_dic(dfscale)})
-            # sp_es.update({es: df_dic(dfsp)})
         dicmeth = {'sharing principle method': dicmeth}
         dicsloc = {'ES local supply': dicsloc}
         dicscale = {'scales': scale_es}
@@ -81,9 +63,11 @@ def dic_process(xl):
     return LCAsys
 
 
-process_info = dic_process(xl)
-print('done!')
 
+pro_u = dic_process(xl_u)
+pro_s= dic_process(xl_s)
+
+print('done!')
 
 # def get_intv(list, r):
 #     list = [0] + list + [r]
@@ -93,22 +77,6 @@ print('done!')
 #         res.append(intv)
 #     return res
 
-
-
-# def dic_process(xl):
-#     sheets = xl.sheet_names
-    
-#     for st in sheets:
-#         data = xl.parse(st) 
-#         pos = data.index[~data['L1'].isnull()].tolist()
-#         lst_intv = get_intv(pos, data.shape[0])
-#         gen = data.iloc[lst_intv[0], :]
-#         scl = data.iloc[lst_intv[1], :]
-#         sp = data.iloc[lst_intv[2], :]
-
-#         ESs = list(data.columns)[2: ] # list of ES names
-#         scl = scl.dropna(subset=ESs, how='all').dropna(axis=1, how='all')
-       
 
 
 #######################################################################################
@@ -130,16 +98,13 @@ print('done!')
 #     }
 # }
 
+
 # procs = {
-#     '001':{
-#         'name': 'fertilizer',
-#         'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
-#         'type': 'LCA',
-#         'sharing principle method': 'population',
-#         'ES local supply': {
-#             'carbon sequestration': 3200
-#         },
+#     'process1':{
+#         'name': 'fertilizer production',
+#         'location': '100 SW st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
 #         'final demand': 0,
+#         'type': 'LCA',
 #         'scales': {
 #             'carbon sequestration': {
 #                 'State': 'Wisconsin',
@@ -154,17 +119,19 @@ print('done!')
 #                 'inverse gdp': 1/50000,
 #                 'area': 2000
 #             }
+#         },
+#         'sharing principle method': {
+#             'carbon sequestration': 'population'
+#         },
+#         'ES local supply': {
+#             'carbon sequestration': 3200
 #         }
 #     },
-#     '002':{
-#         'name': 'corn',
-#         'location': 'xx rd, Ohio',
-#         'type': 'LCA',
-#         'sharing principle method': 'population',
-#         'ES local supply': {
-#             'carbon sequestration': 5500
-#         },
+#     'process2':{
+#         'name': 'corn farm',
+#         'location': '2800 NE Rd, Ohio',
 #         'final demand': 0,
+#         'type': 'LCA',
 #         'scales': {
 #             'carbon sequestration': {
 #                 'State': 'Ohio',
@@ -179,17 +146,19 @@ print('done!')
 #                 'inverse gdp': 1/60000,
 #                 'area': 2700
 #             }
+#         },
+#         'sharing principle method': {
+#             'carbon sequestration': 'populaltion'
+#         },
+#         'ES local supply': {
+#             'carbon sequestration': 5500
 #         }
 #     },
-#     '003':{
-#         'name': 'ethanol',
-#         'location': 'xx rd, Ohio',
-#         'type':'LCA',
-#         'sharing principle method': 'population',
-#         'ES local supply': {
-#             'carbon sequestration': 2100
-#         },
+#     'process3':{
+#         'name': 'ethanol production',
+#         'location': '150 wood st, Ohio',
 #         'final demand': 2000,
+#         'type':'LCA',
 #         'scales': {
 #             'carbon sequestration': {
 #                 'State': 'Ohio',
@@ -204,6 +173,14 @@ print('done!')
 #                 'inverse gdp': 1/80000,
 #                 'area': 3900
 #             }
+#         },
+#         'sharing principle method': {
+#             'carbon sequestration': 'population'
+#         },
+#         'ES local supply': {
+#             'carbon sequestration': 2100
 #         }
 #     }
 # }
+
+

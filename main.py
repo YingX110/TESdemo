@@ -35,10 +35,11 @@ class Process:
         type =  self.type
         scales = proc_info['scales'] 
         ES_name = list(scales.keys()) 
-        SP_meth = self.sharingP
-        # sp_name = input('Name of sharing principle: ') 
+        # SP_meth = self.sharingP
         
         for es in ES_name:
+            SP_meth = self.sharingP[es]
+
             if type == 'Geo-unit process':
                 '''
                 If a geo-unit (county/state/country...) be considered as 
@@ -117,7 +118,6 @@ class LcaSystem:
         !!! Todo:
         consider two cases: geo unit process and lca network
         '''
-        # old = []
         old = np.array([]) # empty array
         for p in self.processes:
             new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
@@ -169,30 +169,105 @@ class LcaSystem:
 
 if __name__ == '__main__':
 
-    proc = {
-        'name': 'State',
-        'location': 'Ohio',
-        'type': 'Geo-unit process',
-        'sharing principle method': 'population',
-        'ES local supply': None,
-        'final demand': None,
-        'scales': {
-            'carbon sequestration': {
-                'World': 'World'
-            }
-        }
-    }
+    # proc = {
+    #     'name': 'State',
+    #     'location': 'Ohio',
+    #     'type': 'Geo-unit process',
+    #     'sharing principle method': 'population',
+    #     'ES local supply': None,
+    #     'final demand': None,
+    #     'scales': {
+    #         'carbon sequestration': {
+    #             'World': 'World'
+    #         }
+    #     }
+    # }
+
+    # procs = {
+    #     '001':{
+    #         'name': 'fertilizer',
+    #         'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
+    #         'type': 'LCA',
+    #         'sharing principle method': 'population',
+    #         'ES local supply': {
+    #             'carbon sequestration': 3200
+    #         },
+    #         'final demand': 0,
+    #         'scales': {
+    #             'carbon sequestration': {
+    #                 'State': 'Wisconsin',
+    #                 'World': 'World'
+    #             }
+    #         },
+    #         'SP info': {
+    #             'carbon sequestration': {
+    #                 'demand': 6400,
+    #                 'population': 100,
+    #                 'gdp': 50000,
+    #                 'inverse gdp': 1/50000,
+    #                 'area': 2000
+    #             }
+    #         }
+    #     },
+    #     '002':{
+    #         'name': 'corn',
+    #         'location': 'xx rd, Ohio',
+    #         'type': 'LCA',
+    #         'sharing principle method': 'population',
+    #         'ES local supply': {
+    #             'carbon sequestration': 5500
+    #         },
+    #         'final demand': 0,
+    #         'scales': {
+    #             'carbon sequestration': {
+    #                 'State': 'Ohio',
+    #                 'World': 'World'
+    #             }
+    #         },
+    #         'SP info': {
+    #             'carbon sequestration': {
+    #                 'demand': 11000,
+    #                 'population': 86,
+    #                 'gdp': 60000,
+    #                 'inverse gdp': 1/60000,
+    #                 'area': 2700
+    #             }
+    #         }
+    #     },
+    #     '003':{
+    #         'name': 'ethanol',
+    #         'location': 'xx rd, Ohio',
+    #         'type':'LCA',
+    #         'sharing principle method': 'population',
+    #         'ES local supply': {
+    #             'carbon sequestration': 2100
+    #         },
+    #         'final demand': 2000,
+    #         'scales': {
+    #             'carbon sequestration': {
+    #                 'State': 'Ohio',
+    #                 'World': 'World'
+    #             }
+    #         },
+    #         'SP info': {
+    #             'carbon sequestration': {
+    #                 'demand': 4200,
+    #                 'population': 101,
+    #                 'gdp': 80000,
+    #                 'inverse gdp': 1/80000,
+    #                 'area': 3900
+    #             }
+    #         }
+    #     }
+    # }
+
 
     procs = {
-        '001':{
-            'name': 'fertilizer',
-            'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
-            'type': 'LCA',
-            'sharing principle method': 'population',
-            'ES local supply': {
-                'carbon sequestration': 3200
-            },
+        'process1':{
+            'name': 'fertilizer production',
+            'location': '100 SW st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
             'final demand': 0,
+            'type': 'LCA',
             'scales': {
                 'carbon sequestration': {
                     'State': 'Wisconsin',
@@ -207,17 +282,19 @@ if __name__ == '__main__':
                     'inverse gdp': 1/50000,
                     'area': 2000
                 }
+            },
+            'sharing principle method': {
+                'carbon sequestration': 'population'
+            },
+            'ES local supply': {
+                'carbon sequestration': 3200
             }
         },
-        '002':{
-            'name': 'corn',
-            'location': 'xx rd, Ohio',
-            'type': 'LCA',
-            'sharing principle method': 'population',
-            'ES local supply': {
-                'carbon sequestration': 5500
-            },
+        'process2':{
+            'name': 'corn farm',
+            'location': '2800 NE Rd, Ohio',
             'final demand': 0,
+            'type': 'LCA',
             'scales': {
                 'carbon sequestration': {
                     'State': 'Ohio',
@@ -232,17 +309,19 @@ if __name__ == '__main__':
                     'inverse gdp': 1/60000,
                     'area': 2700
                 }
+            },
+            'sharing principle method': {
+                'carbon sequestration': 'population'
+            },
+            'ES local supply': {
+                'carbon sequestration': 5500
             }
         },
-        '003':{
-            'name': 'ethanol',
-            'location': 'xx rd, Ohio',
-            'type':'LCA',
-            'sharing principle method': 'population',
-            'ES local supply': {
-                'carbon sequestration': 2100
-            },
+        'process3':{
+            'name': 'ethanol production',
+            'location': '150 wood st, Ohio',
             'final demand': 2000,
+            'type':'LCA',
             'scales': {
                 'carbon sequestration': {
                     'State': 'Ohio',
@@ -257,12 +336,20 @@ if __name__ == '__main__':
                     'inverse gdp': 1/80000,
                     'area': 3900
                 }
+            },
+            'sharing principle method': {
+                'carbon sequestration': 'population'
+            },
+            'ES local supply': {
+                'carbon sequestration': 2100
             }
         }
     }
 
-    ohio = Process(proc)
-    ohio.cal_supply(proc, SP_info)
+
+
+    # ohio = Process(proc)
+    # ohio.cal_supply(proc, SP_info)
 
     obj1 = LcaSystem()
     obj1.add_process(procs, SP_info)
