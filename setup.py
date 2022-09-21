@@ -67,7 +67,7 @@ def dic_process(xl):
 pro_u = dic_process(xl_u)
 pro_s= dic_process(xl_s)
 
-print('done!')
+# print('done!')
 
 # def get_intv(list, r):
 #     list = [0] + list + [r]

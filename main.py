@@ -4,6 +4,7 @@ import numpy as np
 # from numpy.linalg import inv
 from scipy.linalg import lu_factor, lu_solve
 import json
+from setup import *
 
 
 f = open('SP_info3.json')
@@ -347,9 +348,9 @@ if __name__ == '__main__':
     }
 
 
-
-    # ohio = Process(proc)
-    # ohio.cal_supply(proc, SP_info)
+    pro_u = [p for p in pro_u.values()][0]
+    ohio = Process(pro_u)
+    ohio.cal_supply(pro_u, SP_info)
 
     obj1 = LcaSystem()
     obj1.add_process(procs, SP_info)
