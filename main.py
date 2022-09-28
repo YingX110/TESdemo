@@ -89,12 +89,13 @@ class Process:
 
 
 class LcaSystem:
-    def __init__(self, PDic, dfA, dfD):
+    def __init__(self, PDic, dfA, dfD, wt):
         self.PDic = PDic
         self.tech_matrix = dfA.values
         self.intv_matrix = dfD.values
         self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
         self.FlowNum = self.intv_matrix.shape[0] 
+        self.wt = np.diag(wt.values[0]) # weighting factors for allocating supply for main/byproducts
         self.processes = []
 
 
@@ -140,7 +141,7 @@ class LcaSystem:
         for p in self.processes:
             new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
             old = LcaSystem.diag_mat(old, new)
-        self.supply_matrix = old
+        self.supply_matrix = np.dot(old, self.wt)
 
 
     def f_matrix(self):
@@ -282,6 +283,7 @@ if __name__ == '__main__':
 
     dfA = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0) # technology matrix
     dfD = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0) # intervention matrix
+    wt = pd.read_csv('./user_input_data/weighting_vec.csv', index_col=0)
     toy = dic_process(xl_s)
     obj1 = LcaSystem(toy, dfA, dfD)
     obj1.add_process(SP_info)
