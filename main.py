@@ -89,25 +89,31 @@ class Process:
 
 
 class LcaSystem:
-    def __init__(self):
+    def __init__(self, PDic, dfA, dfD):
+        self.PDic = PDic
+        self.tech_matrix = dfA.values
+        self.intv_matrix = dfD.values
+        self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
+        self.FlowNum = self.intv_matrix.shape[0] 
         self.processes = []
 
 
-    def add_process(self, data, SP_info):
-        
-        for p in data.values():
+    # def add_process(self, data, SP_info):
+    def add_process(self, SP_info):
+        # for p in data.values():
+        for p in self.PDic.values():
             process = Process(p)
             process.cal_supply(SP_info)
             self.processes.append(process)
         
 
-    def AD_matrix(self):
-        mat_A = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0).values # technology matrix
-        mat_D = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0).values # intervention matrix
-        self.tech_matrix = mat_A
-        self.intv_matrix = mat_D
-        self.ProcNum = mat_A.shape[1] # number of processes - column
-        self.FlowNum = mat_D.shape[0] # number of elementary flows - row
+    # def AD_matrix(self):
+    #     mat_A = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0).values # technology matrix
+    #     mat_D = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0).values # intervention matrix
+    #     self.tech_matrix = mat_A
+    #     self.intv_matrix = mat_D
+    #     self.ProcNum = mat_A.shape[1] # number of processes - column
+    #     self.FlowNum = mat_D.shape[0] # number of elementary flows - row
 
 
     @staticmethod
@@ -154,7 +160,7 @@ class LcaSystem:
         do matrix calculation
         '''
         self.S_matrix()
-        self.AD_matrix()
+        # self.AD_matrix()
         self.f_matrix()
         Ft = self.Ft
         S = self.supply_matrix
@@ -274,10 +280,12 @@ if __name__ == '__main__':
     ohio = Process(OH)
     ohio.cal_supply(SP_info)
 
+    dfA = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0) # technology matrix
+    dfD = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0) # intervention matrix
     toy = dic_process(xl_s)
-    obj1 = LcaSystem()
-    obj1.add_process(toy, SP_info)
-    obj1.AD_matrix()
+    obj1 = LcaSystem(toy, dfA, dfD)
+    obj1.add_process(SP_info)
+    # obj1.AD_matrix()
     obj1.S_matrix()
     obj1.f_matrix()
 
