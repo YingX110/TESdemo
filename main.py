@@ -5,6 +5,7 @@ import numpy as np
 from scipy.linalg import lu_factor, lu_solve
 import json
 from setup import dic_process
+import matplotlib.pyplot as plt
 
 
 f = open('SP_info3.json')
@@ -198,95 +199,39 @@ class LcaSystem:
 
         return res
     
-    # def barplot(self):
+    def barplot(self, ES):
+        lu, piv = lu_factor(self.tech_matrix)
+        m = lu_solve((lu, piv), self.Ft)
+        Dm = self.intv_matrix @ m
+        demand = Dm.T[0].tolist()
+
+        PName = []
+        allo_s = 0
+        local_s = 0
+        for p in self.processes:
+            sup = p.supply_disag
+            temp = sup[ES]['total'] - sup[ES]['local']
+            allo_s += temp
+            local_s += sup[ES]['local']
+            PName.append(p.name)
+    
+
+        supply = [0] * self.ProcNum
+        supply.append(allo_s); supply.append(local_s)
+        demand.append(0); demand.append(0)
+        PName.append('allocated s'); PName.append('local s')
+
+        data = {'Demand': demand, 'Supply': supply}
+        df = pd.DataFrame.from_dict(data, orient='index', columns=PName)
+
+        df.plot.bar(stacked=True, rot=0, colormap='tab20c')
+        plt.show()
+        
+
 
        
 
 if __name__ == '__main__':
-
-    # procs = {
-    #     'process1':{
-    #         'name': 'fertilizer production',
-    #         'location': '100 SW st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
-    #         'final demand': 0,
-    #         'type': 'LCA',
-    #         'scales': {
-    #             'carbon sequestration': {
-    #                 'State': 'Wisconsin',
-    #                 'World': 'World'
-    #             }
-    #         },
-    #         'SP info': {
-    #             'carbon sequestration': {
-    #                 'demand': 6400,
-    #                 'population': 100,
-    #                 'gdp': 50000,
-    #                 'inverse gdp': 1/50000,
-    #                 'area': 2000
-    #             }
-    #         },
-    #         'sharing principle method': {
-    #             'carbon sequestration': 'population'
-    #         },
-    #         'ES local supply': {
-    #             'carbon sequestration': 3200
-    #         }
-    #     },
-    #     'process2':{
-    #         'name': 'corn farm',
-    #         'location': '2800 NE Rd, Ohio',
-    #         'final demand': 0,
-    #         'type': 'LCA',
-    #         'scales': {
-    #             'carbon sequestration': {
-    #                 'State': 'Ohio',
-    #                 'World': 'World'
-    #             }
-    #         },
-    #         'SP info': {
-    #             'carbon sequestration': {
-    #                 'demand': 11000,
-    #                 'population': 86,
-    #                 'gdp': 60000,
-    #                 'inverse gdp': 1/60000,
-    #                 'area': 2700
-    #             }
-    #         },
-    #         'sharing principle method': {
-    #             'carbon sequestration': 'population'
-    #         },
-    #         'ES local supply': {
-    #             'carbon sequestration': 5500
-    #         }
-    #     },
-    #     'process3':{
-    #         'name': 'ethanol production',
-    #         'location': '150 wood st, Ohio',
-    #         'final demand': 2000,
-    #         'type':'LCA',
-    #         'scales': {
-    #             'carbon sequestration': {
-    #                 'State': 'Ohio',
-    #                 'World': 'World'
-    #             }
-    #         },
-    #         'SP info': {
-    #             'carbon sequestration': {
-    #                 'demand': 4200,
-    #                 'population': 101,
-    #                 'gdp': 80000,
-    #                 'inverse gdp': 1/80000,
-    #                 'area': 3900
-    #             }
-    #         },
-    #         'sharing principle method': {
-    #             'carbon sequestration': 'population'
-    #         },
-    #         'ES local supply': {
-    #             'carbon sequestration': 2100
-    #         }
-    #     }
-    # }
 
 
     xl_u = pd.ExcelFile('./user_input_data/input_OH.xlsx')
