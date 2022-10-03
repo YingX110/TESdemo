@@ -1,5 +1,7 @@
 import streamlit as st
-import main
+from build_data import dic_process
+# import pandas as pd
+from main import *
 
 header = st.container()
 
@@ -17,26 +19,27 @@ with open("template.zip", "rb") as fp:
         mime="application/zip"
     )
 
-uploaded_files = st.file_uploader("Choose input files: technology & intervention matrix, process information", accept_multiple_files=True)
+uploaded_files = st.file_uploader("Choose input files: technology & intervention matrix, weighting vector, process information", accept_multiple_files=True)
 
 num = 0
 for upf in uploaded_files:
     if 'tech' in str(upf.name):
-        dfA = upf
+        dfA = pd.read_csv(upf, index_col=0)
         num += 1
     elif 'intv' in str(upf.name):
-        dfD = upf
+        dfD = pd.read_csv(upf, index_col=0)
         num += 1
     elif 'weight' in str(upf.name):
-        wt = upf
+        wt = pd.read_csv(upf, index_col=0)
         num += 1
     elif 'process' in str(upf.name):
-        proc_xl = upf
+        # proc_xl = pd.read_excel(upf)
+        proc_xl = pd.ExcelFile(upf)
         num += 1
     else:
-        st.write('Check File Name❗')
+        st.write('Rename files as required❗')
 
-if num < 5 and num > 0:
+if num < 4 and num > 0:
     st.write('⚠️ Missing File ⚠️')
 
 # for uploaded_file in uploaded_files:
@@ -50,3 +53,12 @@ if num < 5 and num > 0:
 
 
 ES_name = st.text_input('Name of ecosystem services 👇', 'carbon sequestration')
+
+if st.button('Calculate 🖱️'):
+    toy = dic_process(proc_xl)
+    obj1 = LcaSystem(toy, dfA, dfD, wt)
+    obj1.add_process(SP_info)
+    res = obj1.tes_cal()
+    fig = obj1.barplot(ES_name)
+    st.plotly_chart(fig, use_container_width=True)
+
