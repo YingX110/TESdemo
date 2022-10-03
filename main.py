@@ -4,8 +4,9 @@ import numpy as np
 # from numpy.linalg import inv
 from scipy.linalg import lu_factor, lu_solve
 import json
-from setup import dic_process
-import matplotlib.pyplot as plt
+from build_data import dic_process
+# import matplotlib.pyplot as plt
+import plotly.express as px
 
 
 f = open('SP_info3.json')
@@ -224,15 +225,21 @@ class LcaSystem:
         data = {'Demand': demand, 'Supply': supply}
         df = pd.DataFrame.from_dict(data, orient='index', columns=PName)
 
-        df.plot.bar(stacked=True, rot=0, colormap='tab20c')
-        plt.show()
+        # df.plot.bar(stacked=True, rot=0, colormap='tab20c')
+        # pd.options.plotting.backend = 'plotly'
+        # fig = df.plot(kind='bar')
+        colors = px.colors.qualitative.T10
+        fig = px.bar(df, 
+            x = df.index,
+            y = [c for c in df.columns],
+            template = 'ggplot2',
+            color_discrete_sequence = colors)
+        fig.show()
         
-
 
        
 
 if __name__ == '__main__':
-
 
     xl_u = pd.ExcelFile('./user_input_data/input_OH.xlsx')
     # xl_s = pd.ExcelFile('./user_input_data/input_template0.xlsx')
@@ -254,6 +261,7 @@ if __name__ == '__main__':
     # obj1.f_matrix()
 
     res = obj2.tes_cal()
+    obj2.barplot('carbon sequestration')
 
 
     print('done!')
