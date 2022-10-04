@@ -1,9 +1,12 @@
 from ast import main
 import pandas as pd
 import numpy as np
-# from Sharing_Principle_Info import SP_info
-from numpy.linalg import inv
+# from numpy.linalg import inv
+from scipy.linalg import lu_factor, lu_solve
 import json
+from build_data import dic_process
+# import matplotlib.pyplot as plt
+import plotly.express as px
 
 
 f = open('SP_info3.json')
@@ -20,11 +23,14 @@ class Process:
         self.f = info['final demand']
         self.local_supply = info['ES local supply']
         self.sharingP = info['sharing principle method']
+        self.SPinfo = info['SP info']
+        self.supply_disag = {}
         self.supply = {}
 
 
 
-    def cal_supply(self, proc_info, SP_info):
+    # def cal_supply(self, proc_info, SP_info):
+    def cal_supply(self, SP_info):
         '''
         !! Todo:
         robust requirement: should consider none -> add a if condition
@@ -33,12 +39,15 @@ class Process:
         sp_name: demand/population/area/gdp/inverse gdp
         '''
         type =  self.type
-        scales = proc_info['scales'] 
+        # scales = proc_info['scales'] 
+        scales = self.scales
         ES_name = list(scales.keys()) 
-        SP_meth = self.sharingP
-        # sp_name = input('Name of sharing principle: ') 
+        # SP_meth = self.sharingP
         
         for es in ES_name:
+            SP_meth = self.sharingP[es]
+            self.supply_disag[es] = {}
+
             if type == 'Geo-unit process':
                 '''
                 If a geo-unit (county/state/country...) be considered as 
@@ -50,11 +59,15 @@ class Process:
                 else:
                     sp_amount_L = SP_info[self.name][self.location][SP_meth]
             else:
-                local_S = proc_info['ES local supply'][es]
-                sp_amount_L = proc_info['SP info'][es][SP_meth]
+                # local_S = proc_info['ES local supply'][es]
+                local_S = self.local_supply[es]
+                # sp_amount_L = proc_info['SP info'][es][SP_meth]
+                sp_amount_L = self.SPinfo[es][SP_meth]
             
+            self.supply_disag[es]['local'] = local_S
             allo_S = 0
             frac = 1
+
             for k, v in scales[es].items(): 
                 '''
                 k: general scale name: County, State, Watershed...
@@ -71,36 +84,47 @@ class Process:
                 frac = frac * (sp_amount_L / sp_amount_H)
                 allo_S += frac * S
                 sp_amount_L = sp_amount_H
+                self.supply_disag[es][k] = frac * S
             self.supply[es] = allo_S + local_S
+            self.supply_disag[es]['total'] = allo_S + local_S
 
 
 
 class LcaSystem:
-    def __init__(self):
+    def __init__(self, PDic, dfA, dfD, wt):
+        self.PDic = PDic
+        self.tech_matrix = dfA.values
+        self.intv_matrix = dfD.values
+        self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
+        self.FlowNum = self.intv_matrix.shape[0] 
+        # self.wt = np.diag(wt.values[0]) # weighting factors for allocating supply for main/byproducts
+        self.wt = wt.values[0] # import as a dataframe with one row, each col represents a process, col number equals to that of A matrix
         self.processes = []
 
 
-    def add_process(self, data, SP_info):
-        
-        for p in data.values():
+    # def add_process(self, data, SP_info):
+    def add_process(self, SP_info):
+        # for p in data.values():
+        for p in self.PDic.values():
             process = Process(p)
-            # process.build_proc(p)
-            process.cal_supply(p, SP_info)
+            process.cal_supply(SP_info)
             self.processes.append(process)
+            if len(self.processes) == 1:
+                es_num = len(process.scales.keys()) # number of ecosystem services considered in the system
+                self.ESNum = es_num
         
 
-    def AD_matrix(self):
-        mat_A = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0).values # technology matrix
-        mat_D = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0).values # intervention matrix
-        self.tech_matrix = mat_A
-        self.intv_matrix = mat_D
-        self.ProcNum = mat_A.shape[1] # number of processes - column
-        self.FlowNum = mat_D.shape[0] # number of elementary flows - row
+    # def AD_matrix(self):
+    #     mat_A = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0).values # technology matrix
+    #     mat_D = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0).values # intervention matrix
+    #     self.tech_matrix = mat_A
+    #     self.intv_matrix = mat_D
+    #     self.ProcNum = mat_A.shape[1] # number of processes - column
+    #     self.FlowNum = mat_D.shape[0] # number of elementary flows - row
 
 
     @staticmethod
     def diag_mat(m1, m2):
-        # if m1 == []:
         if m1.size == 0:
             return m2
         else:
@@ -111,6 +135,14 @@ class LcaSystem:
             return np.vstack((up, down))
 
 
+    def WT_matrix(self):
+        old = np.array([])
+        for v in self.wt:
+            new = np.ones((self.ESNum, 1)) * v 
+            old = LcaSystem.diag_mat(old, new)
+        self.wt_matrix = old
+
+
     def S_matrix(self):
         '''
         build S matrix from self.processes 
@@ -119,12 +151,12 @@ class LcaSystem:
         !!! Todo:
         consider two cases: geo unit process and lca network
         '''
-        # old = []
+        self.WT_matrix()
         old = np.array([]) # empty array
         for p in self.processes:
             new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
             old = LcaSystem.diag_mat(old, new)
-        self.supply_matrix = old
+        self.supply_matrix = np.dot(old, self.wt_matrix)
 
 
     def f_matrix(self):
@@ -144,7 +176,6 @@ class LcaSystem:
         do matrix calculation
         '''
         self.S_matrix()
-        self.AD_matrix()
         self.f_matrix()
         Ft = self.Ft
         S = self.supply_matrix
@@ -162,117 +193,79 @@ class LcaSystem:
         LHS = np.hstack((AD, OI))
         RHS = FO - CS @ me
 
-        res = inv(LHS) @ RHS
+        lu, piv = lu_factor(LHS)
+        res = lu_solve((lu, piv), RHS)
+        # res = inv(LHS) @ RHS
+        self.res = res
 
         return res
+    
+    def barplot(self, ES):
+        lu, piv = lu_factor(self.tech_matrix)
+        m = lu_solve((lu, piv), self.Ft)
+        Dm = self.intv_matrix @ m
+        demand = Dm.T[0].tolist()
+
+        PName = []
+        allo_s = 0
+        local_s = 0
+        for p in self.processes:
+            sup = p.supply_disag
+            temp = sup[ES]['total'] - sup[ES]['local']
+            allo_s += temp
+            local_s += sup[ES]['local']
+            PName.append(p.name)
+    
+
+        supply = [0] * self.ProcNum
+        supply.append(allo_s); supply.append(local_s)
+        demand.append(0); demand.append(0)
+        PName.append('allocated s'); PName.append('local s')
+
+        data = {'Demand': demand, 'Supply': supply}
+        df = pd.DataFrame.from_dict(data, orient='index', columns=PName)
+
+        # df.plot.bar(stacked=True, rot=0, colormap='tab20c')
+        # pd.options.plotting.backend = 'plotly'
+        # fig = df.plot(kind='bar')
+        colors = px.colors.qualitative.T10
+        fig = px.bar(df, 
+            x = df.index,
+            y = [c for c in df.columns],
+            template = 'ggplot2',
+            color_discrete_sequence = colors)
+        return fig
+        # fig.show()
+        
+
        
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-proc = {
-    'name': 'State',
-    'location': 'Ohio',
-    'type': 'Geo-unit process',
-    'sharing principle method': 'population',
-    'ES local supply': None,
-    'final demand': None,
-    'scales': {
-        'carbon sequestration': {
-            'World': 'World'
-        }
-    }
-}
-
-procs = {
-    '001':{
-        'name': 'fertilizer',
-        'location': 'xx st, Wisconsin', # address for checking whether user input info is correct, not directly used for LCA system
-        'type': 'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'carbon sequestration': 3200
-        },
-        'final demand': 0,
-        'scales': {
-            'carbon sequestration': {
-                'State': 'Wisconsin',
-                'World': 'World'
-            }
-        },
-        'SP info': {
-            'carbon sequestration': {
-                'demand': 6400,
-                'population': 100,
-                'gdp': 50000,
-                'inverse gdp': 1/50000,
-                'area': 2000
-            }
-        }
-    },
-    '002':{
-        'name': 'corn',
-        'location': 'xx rd, Ohio',
-        'type': 'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'carbon sequestration': 5500
-        },
-        'final demand': 0,
-        'scales': {
-            'carbon sequestration': {
-                'State': 'Ohio',
-                'World': 'World'
-            }
-        },
-        'SP info': {
-            'carbon sequestration': {
-                'demand': 11000,
-                'population': 86,
-                'gdp': 60000,
-                'inverse gdp': 1/60000,
-                'area': 2700
-            }
-        }
-    },
-    '003':{
-        'name': 'ethanol',
-        'location': 'xx rd, Ohio',
-        'type':'LCA',
-        'sharing principle method': 'population',
-        'ES local supply': {
-            'carbon sequestration': 2100
-        },
-        'final demand': 2000,
-        'scales': {
-            'carbon sequestration': {
-                'State': 'Ohio',
-                'World': 'World'
-            }
-        },
-        'SP info': {
-            'carbon sequestration': {
-                'demand': 4200,
-                'population': 101,
-                'gdp': 80000,
-                'inverse gdp': 1/80000,
-                'area': 3900
-            }
-        }
-    }
-}
-
-# ohio = Process(proc)
-# ohio.cal_supply(proc, SP_info)
+    xl_u = pd.ExcelFile('./user_input_data/input_OH.xlsx')
+    # xl_s = pd.ExcelFile('./user_input_data/input_template0.xlsx')
+    xl_s = pd.ExcelFile('./user_input_data/BD_LCA.xlsx')
 
 
-# obj1 = LcaSystem()
-# obj1.add_process(procs, SP_info)
-# obj1.AD_matrix()
-# obj1.S_matrix()
-# obj1.f_matrix()
-# res = obj1.tes_cal()
+    ## pro_u = [p for p in pro_u.values()][0]
+    OH = dic_process(xl_u)
+    ohio = Process(OH)
+    ohio.cal_supply(SP_info)
 
-# print('done!')
+    dfA = pd.read_csv('./user_input_data/tech_matrix1.csv', index_col=0) # technology matrix
+    dfD = pd.read_csv('./user_input_data/intv_matrix1.csv', index_col=0) # intervention matrix
+    wt = pd.read_csv('./user_input_data/weighting_vec.csv', index_col=0)
+    toy = dic_process(xl_s)
+    obj2 = LcaSystem(toy, dfA, dfD, wt)
+    obj2.add_process(SP_info)
+    # obj1.S_matrix()
+    # obj1.f_matrix()
+
+    res = obj2.tes_cal()
+    obj2.barplot('carbon sequestration')
+
+
+    print('done!')
 
 
 
