@@ -15,7 +15,6 @@ with col2:
 
 
 
-
 with open("template.zip", "rb") as fp:
     btn = st.download_button(
         label="Template Download 📁 (.zip)",
