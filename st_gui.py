@@ -4,16 +4,20 @@ from build_data import dic_process
 from main import *
 
 header = st.container()
+col1,col2 = st.columns([2,8])
 
 with header:
-    st.title('Nature Solution🌲: TES-LCA') 
+    st.title('Natural Solution🌲: TES-LCA') 
+
+with col2:
     st.markdown("**website:** [SEERG](https://cbe.osu.edu/bakshi-sustainable-engineering-research-group) **| contact:** xue.326@osu.com")
+
 
 
 
 with open("template.zip", "rb") as fp:
     btn = st.download_button(
-        label="Input Data Template",
+        label="Template Download 📁 (.zip)",
         data=fp,
         file_name="template.zip",
         mime="application/zip"
