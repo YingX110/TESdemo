@@ -4,6 +4,7 @@ from scipy.linalg import lu_factor, lu_solve
 import json
 from build_data_v2 import format_process
 import plotly.express as px
+from get_lonlat import *
 
 
 f = open('SP_info4.json')
@@ -81,6 +82,7 @@ class Process:
 class LcaSystem:
     def __init__(self, PDic, dfA, dfD, wt):
         self.PDic = PDic
+        self.Address = self.PDic.pop('Address') # need check!!!!!!!!!
         self.tech_matrix = dfA.values
         self.intv_matrix = dfD.values
         self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
@@ -175,6 +177,15 @@ class LcaSystem:
         return res
     
 
+
+    def mapplot(self):
+        loc = self.Address.copy()
+        res = get_location(loc)
+        
+         
+
+
+
     def barplot(self, ES):
         lu, piv = lu_factor(self.tech_matrix)
         m = lu_solve((lu, piv), self.Ft)
@@ -234,8 +245,8 @@ if __name__ == '__main__':
     obj2 = LcaSystem(toy2, dfA, dfD2, wt)
     obj2.add_process(SP_info)
 
-
-    # res = obj2.tes_cal()
+    res1 = obj1.tes_cal()
+    res2 = obj2.tes_cal()
     # obj2.barplot('carbon sequestration')
 
 

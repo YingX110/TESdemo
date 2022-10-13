@@ -1,4 +1,4 @@
-Process,Address
+Process,location
 K fert production,"1001 17th St UNIT 1050, Denver, CO 80202"
 P fert production,"8415 FL-62, Bowling Green, FL 33834"
 Diesel production,"821 Wanda St, Ferndale, MI 48220"
@@ -6,4 +6,4 @@ Gasoline production,"1301 Flora St, Plymouth, IN 46563"
 Soybean farm,"2311 Mile Tree Rd #9707, Clarksburg, OH 43115"
 BD production,"20400 Stevens Creek Blvd # 700, Cupertino, CA 95014"
 T & D,"Columbus, Ohio"
-BD use,"Hamilton, Ohio"
+BD use,

@@ -35,6 +35,7 @@ def format_process(ls_df):
         ls_ES.append(ESname)
         if flag == 0:
             dictcom = df[['name', 'location', 'type', 'final demand']].to_dict('index')
+            location = df[['name', 'location']].reset_index().drop(['index'], axis=1)
             flag += 1
         dictes = df[['SP name', 'SP amount', 'local demand', 'local supply']].to_dict('index')
         dictscale = df[geo_unit].dropna(axis='columns').to_dict('index')
@@ -43,7 +44,7 @@ def format_process(ls_df):
             v[ESname] = dictes[k]
             v[ESname]['scales'] = dictscale[k]
             v['ES'] = ls_ES 
-    # dictcom['ES'] = ls_ES    
+    dictcom['Address'] = location    
     return dictcom
     
 
