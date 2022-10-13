@@ -102,20 +102,20 @@ df = df.iloc[3:, :]
 df = df.reset_index()
 df = df.set_axis(['code', 'supply'], axis=1, inplace=False)
 
-# map = px.choropleth(locations=df['code'], 
-#                     locationmode="USA-states", 
-#                     color=df['supply'].astype(float), 
-#                     # range_color=(1e4,7e8),
-#                     color_continuous_scale="Blugrn",
-#                     scope="usa")
+map = px.choropleth(locations=df['code'], 
+                    locationmode="USA-states", 
+                    color=df['supply'].astype(float), 
+                    range_color=(1e4,7e8),
+                    color_continuous_scale="Blugrn",
+                    scope="usa")
 
 
-map = go.Figure(data=go.Choropleth(
-    locations=df['code'], 
-    z = df['supply'].astype(float), 
-    locationmode = 'USA-states', 
-    colorscale = 'Blugrn',
-    colorbar_title = "ton CO2/yr"))
+# map = go.Figure(data=go.Choropleth(
+#     locations=df['code'], 
+#     z = df['supply'].astype(float), 
+#     locationmode = 'USA-states', 
+#     colorscale = 'Blugrn',
+#     colorbar_title = "ton CO2/yr"))
 
 map.update_layout(
     title_text = 'Supply by each state in the U.S. (2016 data)',

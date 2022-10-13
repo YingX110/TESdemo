@@ -1,0 +1,9 @@
+,name,location,type,final demand
+process1,K Fert production,"Eddy county, NM",LCA,0
+process2 ,P Fert production,"2405 W. Vassar Rd, Saginaw, MI",LCA,0
+process3,diesel production,"4646 Hwy 3059, Calcasieu Parish, LA",LCA,0
+process4,gasoline production,"Harris county, TX",LCA,0
+process5,soybean farm,"Hamilton county, OH",LCA,0
+process6,BD production,"Cincinnati Renewable fuels LLC, OH",LCA,0
+process7,T & D,,LCA,0
+process8,BD use,"Columbus, OH",LCA,1
