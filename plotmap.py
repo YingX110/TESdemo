@@ -1,5 +1,6 @@
 import plotly.express as px
 import pandas as pd
+import plotly.graph_objects as go
 
 mapdf = pd.read_csv('./data_inventory/mapdata.csv')
 procloc = pd.read_csv('latlng.csv')
@@ -73,3 +74,37 @@ for i, frame in enumerate(fig.frames):
     fig.frames[i].data += (fig2.frames[i].data[0],)
 
 fig.show()
+
+
+
+#############
+# colors = ["lightseagreen", "crimson"]
+
+# fig = go.Figure()
+# sus = procloc.loc[procloc['Vk'] >= 0]
+# unsus = procloc.loc[procloc['Vk'] < 0]
+# ls = [sus, unsus]
+
+# for i in range(len(ls)):
+#     fig.add_trace(go.Scattergeo(
+#         locationmode = 'USA-states',
+#         lon = ls[i]['lng'],
+#         lat = ls[i]['lat'],
+#         marker = dict(
+#             size = ls[i]['Scaled'] * 30,
+#             color = colors[i],
+#             line_color='rgb(40,40,40)',
+#             line_width=0.5,
+#             sizemode = 'area'
+#         )))
+
+# fig.update_layout(
+#         title_text = 'absolute sustainability metric',
+#         showlegend = True,
+#         geo = dict(
+#             scope = 'usa',
+#             landcolor = 'rgb(217, 217, 217)',
+#         )
+#     )
+
+# fig.show()
