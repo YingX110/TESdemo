@@ -6,26 +6,6 @@ mapdf = pd.read_csv('./data_inventory/mapdata.csv')
 procloc = pd.read_csv('latlng.csv')
 
 
-
-# df = px.data.gapminder()
-# fig = px.choropleth(df, locations="iso_alpha",
-#                     color="lifeExp", # lifeExp is a column of gapminder
-#                     hover_name="country", # column to add to hover information
-#                     color_continuous_scale=px.colors.sequential.Plasma,
-#                     animation_frame='year')
-# fig2 = px.scatter_geo(df, locations="iso_alpha",
-#                     size="lifeExp", # lifeExp is a column of gapminder
-#                     hover_name="country", # column to add to hover information
-#                     color_continuous_scale=px.colors.sequential.Plasma,
-#                     animation_frame='year')
-# fig.add_trace(fig2.data[0])
-# for i, frame in enumerate(fig.frames):
-#     fig.frames[i].data += (fig2.frames[i].data[0],)
-# fig.show()
-
-
-###############################################
-
 SPM = "Population" 
 SCALE = "Local, Worldwide"
 
@@ -50,34 +30,50 @@ fig = px.choropleth(locations=df['code'],
                     color_continuous_scale="Blugrn",
                     scope="usa")
 
-# fig2 = px.scatter_geo(procloc, locations="iso_alpha",
-#                     size=2,
-#                     color=df['Vk'].astype(float), 
-#                     hover_name="Process", # column to add to hover information
-#                     color_continuous_scale=px.colors.sequential.Plasma)
+colors = ["lightseagreen", "crimson"]
+sus = procloc.loc[procloc['Vk'] >= 0]
+unsus = procloc.loc[procloc['Vk'] < 0]
+ls = [sus, unsus]
 
-fig2 = px.scatter_geo(procloc, 
-                    lat="lat", 
-                    lon="lng", 
-                    size='Scaled',
-                    hover_name='Process')
+fig2 = go.Figure()
 
-# fig2 = px.scatter_mapbox(procloc, lat="lat", lon="lng", color="Vk", size='Scaled',
-#                   color_continuous_scale=px.colors.cyclical.IceFire, size_max=15)
+for i in range(len(ls)):
+    fig2.add_trace(go.Scattergeo(
+        locationmode = 'USA-states',
+        lon = ls[i]['lng'],
+        lat = ls[i]['lat'],
+        marker = dict(
+            size = ls[i]['Scaled'] * 100,
+            color = colors[i],
+            line_color='rgb(40,40,40)',
+            line_width=0.5,
+            sizemode = 'area'
+        )))
+    
 
 
 
-
+#####
 fig.add_trace(fig2.data[0])
+fig.add_trace(fig2.data[1])
 
 for i, frame in enumerate(fig.frames):
     fig.frames[i].data += (fig2.frames[i].data[0],)
 
-fig.show()
-
-
 
 #############
+fig.update_layout(
+        title_text = 'Vk',
+        showlegend = False,
+        geo = dict(
+            scope = 'usa',
+            landcolor = 'rgb(217, 217, 217)',
+        )
+    )
+
+
+fig.show()
+
 # colors = ["lightseagreen", "crimson"]
 
 # fig = go.Figure()
@@ -91,7 +87,7 @@ fig.show()
 #         lon = ls[i]['lng'],
 #         lat = ls[i]['lat'],
 #         marker = dict(
-#             size = ls[i]['Scaled'] * 30,
+#             size = ls[i]['Scaled'] * 40,
 #             color = colors[i],
 #             line_color='rgb(40,40,40)',
 #             line_width=0.5,
@@ -108,3 +104,56 @@ fig.show()
 #     )
 
 # fig.show()
+
+
+###
+import plotly.express as px
+import pandas as pd
+
+mapdf = pd.read_csv('./data_inventory/mapdata.csv')
+procloc = pd.read_csv('latlng.csv')
+
+
+
+# df = px.data.gapminder()
+# fig = px.choropleth(df, locations="iso_alpha",
+#                     color="lifeExp", # lifeExp is a column of gapminder
+#                     hover_name="country", # column to add to hover information
+#                     color_continuous_scale=px.colors.sequential.Plasma,
+#                     animation_frame='year')
+# fig2 = px.scatter_geo(df, locations="iso_alpha",
+#                     size="lifeExp", # lifeExp is a column of gapminder
+#                     hover_name="country", # column to add to hover information
+#                     color_continuous_scale=px.colors.sequential.Plasma,
+#                     animation_frame='year')
+# fig.add_trace(fig2.data[0])
+# for i, frame in enumerate(fig.frames):
+#     fig.frames[i].data += (fig2.frames[i].data[0],)
+# fig.show()
+
+
+###############################################
+'Basic plot (one color for all bubbles):'
+# fig = px.choropleth(locations=df['code'], 
+#                     locationmode="USA-states", 
+#                     color=df['supply'].astype(float), 
+#                     range_color=(low,up),
+#                     color_continuous_scale="Blugrn",
+#                     scope="usa")
+
+# fig2 = px.scatter_geo(procloc, 
+#                     lat="lat", 
+#                     lon="lng", 
+#                     size='Scaled',
+#                     hover_name='Process')
+
+
+'Use openstreet map (require mapbox token):'
+# px.set_mapbox_access_token(open("carbon.mapbox_token").read())
+# fig = px.scatter_mapbox(procloc, 
+#                         lat="lat", lon="lng", 
+#                         color="Vk", size="Scaled",
+#                         color_continuous_scale=px.colors.cyclical.IceFire, 
+#                         size_max=15, zoom=2)
+# fig.show()
+
