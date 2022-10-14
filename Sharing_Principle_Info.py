@@ -167,7 +167,7 @@ SP_info = {
 
 
 json_object = json.dumps(SP_info, indent = 4) 
-with open("SP_info3.json", "w") as outfile:
+with open("SP_info4.json", "w") as outfile:
     json.dump(SP_info, outfile)
 
 print('done!')
