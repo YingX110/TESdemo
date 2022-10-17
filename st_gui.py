@@ -4,6 +4,7 @@ from build_data import dic_process
 # import pandas as pd
 from main import *
 import plotly.graph_objects as go
+from plotmap import mapplot
 
 header = st.container()
 
@@ -69,57 +70,60 @@ if st.button('Calculate 🖱️'):
     fig = obj1.barplot(ES_name)
     st.plotly_chart(fig, use_container_width=True)
 
+    mapdf = pd.read_csv('./data_inventory/mapdata.csv')
+    procloc = pd.read_csv('latlng.csv')
+    fig2 = mapplot(mapdf, procloc)
+    st.plotly_chart(fig2, use_container_width=True)
+
+# usmap = st.container()
+# with usmap:
+#     st.markdown('Explore Carbon Sequestration over US 🇺🇸 using **TES Framework**') 
+
+# s1,s2 = st.columns(2)
+
+# with s1:
+#     SPM = st.selectbox("Select Sharing Principle:", 
+#     ("Population", "GDP", "Inverse of GDP", "Area", "Emission"), 
+#     disabled=False)
+
+# with s2:
+#     SCALE = st.selectbox("Select scales:", 
+#     ("Local, National", "Local, Worldwide", "Local, National, Worldwide", "Direct downscaling (PB)"), 
+#     disabled=False)
 
 
-usmap = st.container()
-with usmap:
-    st.markdown('Explore Carbon Sequestration over US 🇺🇸 using **TES Framework**') 
 
-s1,s2 = st.columns(2)
+# mapdf = pd.read_csv('./data_inventory/mapdata.csv')
 
-with s1:
-    SPM = st.selectbox("Select Sharing Principle:", 
-    ("Population", "GDP", "Inverse of GDP", "Area", "Emission"), 
-    disabled=False)
-
-with s2:
-    SCALE = st.selectbox("Select scales:", 
-    ("Local, National", "Local, Worldwide", "Local, National, Worldwide", "Direct downscaling (PB)"), 
-    disabled=False)
+# if SCALE != "Direct downscaling (PB)":
+#     df = mapdf[(mapdf.Scale == SCALE) & (mapdf.Method == 'TES') & (mapdf.SP == SPM)]
+# else:
+#     df = mapdf[(mapdf.Method == 'PB') & (mapdf.SP == SPM)]
 
 
+# df = df.T
+# df = df.iloc[3:, :]
+# df = df.reset_index()
+# df = df.set_axis(['code', 'supply'], axis=1, inplace=False)
 
-mapdf = pd.read_csv('./data_inventory/mapdata.csv')
-
-if SCALE != "Direct downscaling (PB)":
-    df = mapdf[(mapdf.Scale == SCALE) & (mapdf.Method == 'TES') & (mapdf.SP == SPM)]
-else:
-    df = mapdf[(mapdf.Method == 'PB') & (mapdf.SP == SPM)]
-
-
-df = df.T
-df = df.iloc[3:, :]
-df = df.reset_index()
-df = df.set_axis(['code', 'supply'], axis=1, inplace=False)
-
-map = px.choropleth(locations=df['code'], 
-                    locationmode="USA-states", 
-                    color=df['supply'].astype(float), 
-                    range_color=(1e4,7e8),
-                    color_continuous_scale="Blugrn",
-                    scope="usa")
+# map = px.choropleth(locations=df['code'], 
+#                     locationmode="USA-states", 
+#                     color=df['supply'].astype(float), 
+#                     range_color=(1e4,7e8),
+#                     color_continuous_scale="Blugrn",
+#                     scope="usa")
 
 
-# map = go.Figure(data=go.Choropleth(
-#     locations=df['code'], 
-#     z = df['supply'].astype(float), 
-#     locationmode = 'USA-states', 
-#     colorscale = 'Blugrn',
-#     colorbar_title = "ton CO2/yr"))
+# # map = go.Figure(data=go.Choropleth(
+# #     locations=df['code'], 
+# #     z = df['supply'].astype(float), 
+# #     locationmode = 'USA-states', 
+# #     colorscale = 'Blugrn',
+# #     colorbar_title = "ton CO2/yr"))
 
-map.update_layout(
-    title_text = 'Supply by each state in the U.S. (2016 data)',
-    geo_scope='usa')
+# map.update_layout(
+#     title_text = 'Supply by each state in the U.S. (2016 data)',
+#     geo_scope='usa')
 
-st.plotly_chart(map, use_container_width=True)
+# st.plotly_chart(map, use_container_width=True)
 

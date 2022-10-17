@@ -2,77 +2,81 @@ import plotly.express as px
 import pandas as pd
 import plotly.graph_objects as go
 
-mapdf = pd.read_csv('./data_inventory/mapdata.csv')
-procloc = pd.read_csv('latlng.csv')
+
+def mapplot(mapdf, procloc):
+    SPM = "Population" 
+    SCALE = "Local, Worldwide"
+
+    if SCALE != "Direct downscaling (PB)":
+        df = mapdf[(mapdf.Scale == SCALE) & (mapdf.Method == 'TES') & (mapdf.SP == SPM)]
+    else:
+        df = mapdf[(mapdf.Method == 'PB') & (mapdf.SP == SPM)]
 
 
-SPM = "Population" 
-SCALE = "Local, Worldwide"
+    df = df.T
+    df = df.iloc[3:, :]
+    df = df.reset_index()
+    df = df.set_axis(['code', 'supply'], axis=1, inplace=False)
 
-if SCALE != "Direct downscaling (PB)":
-    df = mapdf[(mapdf.Scale == SCALE) & (mapdf.Method == 'TES') & (mapdf.SP == SPM)]
-else:
-    df = mapdf[(mapdf.Method == 'PB') & (mapdf.SP == SPM)]
+    up = max(df['supply'])
+    low = min(df['supply'])
 
+    fig = px.choropleth(locations=df['code'], 
+                        locationmode="USA-states", 
+                        color=df['supply'].astype(float), 
+                        range_color=(low,up),
+                        color_continuous_scale="Blugrn",
+                        scope="usa")
 
-df = df.T
-df = df.iloc[3:, :]
-df = df.reset_index()
-df = df.set_axis(['code', 'supply'], axis=1, inplace=False)
+    colors = ["lightseagreen", "crimson"]
+    sus = procloc.loc[procloc['Vk'] >= 0]
+    unsus = procloc.loc[procloc['Vk'] < 0]
+    ls = [sus, unsus]
 
-up = max(df['supply'])
-low = min(df['supply'])
+    fig2 = go.Figure()
 
-fig = px.choropleth(locations=df['code'], 
-                    locationmode="USA-states", 
-                    color=df['supply'].astype(float), 
-                    range_color=(low,up),
-                    color_continuous_scale="Blugrn",
-                    scope="usa")
-
-colors = ["lightseagreen", "crimson"]
-sus = procloc.loc[procloc['Vk'] >= 0]
-unsus = procloc.loc[procloc['Vk'] < 0]
-ls = [sus, unsus]
-
-fig2 = go.Figure()
-
-for i in range(len(ls)):
-    fig2.add_trace(go.Scattergeo(
-        locationmode = 'USA-states',
-        lon = ls[i]['lng'],
-        lat = ls[i]['lat'],
-        marker = dict(
-            size = ls[i]['Scaled'] * 100,
-            color = colors[i],
-            line_color='rgb(40,40,40)',
-            line_width=0.5,
-            sizemode = 'area'
-        )))
-    
+    for i in range(len(ls)):
+        fig2.add_trace(go.Scattergeo(
+            locationmode = 'USA-states',
+            lon = ls[i]['lng'],
+            lat = ls[i]['lat'],
+            marker = dict(
+                size = ls[i]['Scaled'] * 110,
+                color = colors[i],
+                line_color='rgb(40,40,40)',
+                line_width=0.5,
+                sizemode = 'area'
+            )))
+        
 
 
 
-#####
-fig.add_trace(fig2.data[0])
-fig.add_trace(fig2.data[1])
+    #####
+    fig.add_trace(fig2.data[0])
+    fig.add_trace(fig2.data[1])
 
-for i, frame in enumerate(fig.frames):
-    fig.frames[i].data += (fig2.frames[i].data[0],)
+    for i, frame in enumerate(fig.frames):
+        fig.frames[i].data += (fig2.frames[i].data[0],)
 
 
-#############
-fig.update_layout(
-        title_text = 'Vk',
-        showlegend = False,
-        geo = dict(
-            scope = 'usa',
-            landcolor = 'rgb(217, 217, 217)',
+    #############
+    fig.update_layout(
+            title_text = 'Transgression Level for Each Process',
+            showlegend = False,
+            geo = dict(
+                scope = 'usa',
+                landcolor = 'rgb(217, 217, 217)'
+            )
         )
-    )
 
+    return fig
+    # fig.show()
 
-fig.show()
+if __name__ == '__main__':
+
+    mapdf = pd.read_csv('./data_inventory/mapdata.csv')
+    procloc = pd.read_csv('latlng.csv')
+    mapplot(mapdf, procloc)
 
 # colors = ["lightseagreen", "crimson"]
 
@@ -107,11 +111,11 @@ fig.show()
 
 
 ###
-import plotly.express as px
-import pandas as pd
+# import plotly.express as px
+# import pandas as pd
 
-mapdf = pd.read_csv('./data_inventory/mapdata.csv')
-procloc = pd.read_csv('latlng.csv')
+# mapdf = pd.read_csv('./data_inventory/mapdata.csv')
+# procloc = pd.read_csv('latlng.csv')
 
 
 
@@ -133,7 +137,7 @@ procloc = pd.read_csv('latlng.csv')
 
 
 ###############################################
-'Basic plot (one color for all bubbles):'
+# 'Basic plot (one color for all bubbles):'
 # fig = px.choropleth(locations=df['code'], 
 #                     locationmode="USA-states", 
 #                     color=df['supply'].astype(float), 
@@ -148,7 +152,7 @@ procloc = pd.read_csv('latlng.csv')
 #                     hover_name='Process')
 
 
-'Use openstreet map (require mapbox token):'
+# 'Use openstreet map (require mapbox token):'
 # px.set_mapbox_access_token(open("carbon.mapbox_token").read())
 # fig = px.scatter_mapbox(procloc, 
 #                         lat="lat", lon="lng", 
