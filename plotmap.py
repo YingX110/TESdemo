@@ -3,10 +3,8 @@ import pandas as pd
 import plotly.graph_objects as go
 
 
-def mapplot(mapdf, procloc):
-    SPM = "Population" 
-    SCALE = "Local, Worldwide"
 
+def mapplot(mapdf, procloc, SPM, SCALE):
     if SCALE != "Direct downscaling (PB)":
         df = mapdf[(mapdf.Scale == SCALE) & (mapdf.Method == 'TES') & (mapdf.SP == SPM)]
     else:
@@ -50,8 +48,7 @@ def mapplot(mapdf, procloc):
         
 
 
-
-    #####
+    #############
     fig.add_trace(fig2.data[0])
     fig.add_trace(fig2.data[1])
 
@@ -68,15 +65,17 @@ def mapplot(mapdf, procloc):
                 landcolor = 'rgb(217, 217, 217)'
             )
         )
-
-    return fig
     # fig.show()
+    return fig
+
 
 if __name__ == '__main__':
-
-    mapdf = pd.read_csv('./data_inventory/mapdata.csv')
+    
+    SPM = "demand" 
+    SCALE = "World"
+    mapdf = pd.read_csv('mapdata1.csv')
     procloc = pd.read_csv('latlng.csv')
-    mapplot(mapdf, procloc)
+    mapplot(mapdf, procloc, SPM, SCALE)
 
 # colors = ["lightseagreen", "crimson"]
 

@@ -1,0 +1,9 @@
+,name,location,type,final demand,SP name,SP amount,ES,local demand,local supply,County,State,Country,World,Watershed
+process1,K Fert production,"Eddy county, NM",LCA,0,demand,0.000188,carbon sequestration,0.000188,1.36E-07,,New Mexico,,World,
+process2,P Fert production,"2405 W. Vassar Rd, Saginaw, MI",LCA,0,demand,1.33E-05,carbon sequestration,1.33E-05,5.3E-08,,Michigan,,World,
+process3,diesel production,"4646 Hwy 3059, Calcasieu Parish, LA",LCA,0,demand,0.000316,carbon sequestration,0.000316,4.58E-06,,Louisiana,,World,
+process4,gasoline production,"Harris county, TX",LCA,0,demand,2.85E-05,carbon sequestration,2.85E-05,7.5E-09,,Texas,,World,
+process5,soybean farm,"Hamilton county, OH",LCA,0,demand,0.00107,carbon sequestration,0.00107,0.0373,,Ohio,,World,
+process6,BD production,"Cincinnati Renewable fuels LLC, OH",LCA,0,demand,0.00241,carbon sequestration,0.00241,2.29E-06,,Ohio,,World,
+process7,T & D,,LCA,0,demand,0.00681,carbon sequestration,0.00681,0,,Ohio,,World,
+process8,BD use,"Columbus, OH",LCA,1,demand,0.0124,carbon sequestration,0.0124,0,,Ohio,,World,

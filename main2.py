@@ -4,7 +4,7 @@ from scipy.linalg import lu_factor, lu_solve
 import json
 from build_data_v2 import format_process
 import plotly.express as px
-from get_lonlat import *
+from get_lonlat import get_location
 
 
 f = open('SP_info4.json')
@@ -83,6 +83,8 @@ class LcaSystem:
     def __init__(self, PDic, dfA, dfD, wt):
         self.PDic = PDic
         self.Address = self.PDic.pop('Address') # need check!!!!!!!!!
+        self.SCALES = self.PDic.pop('SCALES') 
+        self.SPM = self.PDic.pop('SPM') 
         self.tech_matrix = dfA.values
         self.intv_matrix = dfD.values
         self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
@@ -178,13 +180,12 @@ class LcaSystem:
     
 
 
-    def mapplot(self):
+    def get_location(self):
         loc = self.Address.copy()
         res = get_location(loc)
+        return res
         
          
-
-
 
     def barplot(self, ES):
         lu, piv = lu_factor(self.tech_matrix)
@@ -225,7 +226,8 @@ class LcaSystem:
 
 if __name__ == '__main__':
 
-    df_s1 = pd.read_csv('ES1_info.csv', index_col=0)
+    # df_s1 = pd.read_csv('ES1_info.csv', index_col=0) # one scale: local+world
+    df_s1 = pd.read_csv('ES1_info1.csv', index_col=0) # two scale: local+state+world
     df_s2 = pd.read_csv('ES2_info.csv', index_col=0)
     df_s2['Watershed'] = df_s2.Watershed.astype(str)
     ls_df1 = [df_s1]
@@ -249,6 +251,7 @@ if __name__ == '__main__':
     res2 = obj2.tes_cal()
     # obj2.barplot('carbon sequestration')
 
+    # resloc = obj1.get_location()
 
     print('done!')
 
