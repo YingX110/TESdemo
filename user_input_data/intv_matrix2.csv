@@ -1,17 +1,17 @@
  ,process 1,process 2,process 3,process 4,process 5,process 6,process 7,process 8
-CO2,0.000187,0,0,0,0,0,0,0
-H2O,0.020009,0,0,0,0,0,0,0
-CO2,0,1.33E-05,0,0,0,0,0,0
-H2O,0,0.0014231,0,0,0,0,0,0
-CO2,0,0,0.000316,0,0,0,0,0
-H2O,0,0,0.033812,0,0,0,0,0
-CO2,0,0,0,2.85E-05,0,0,0,0
-H2O,0,0,0,0.0030495,0,0,0,0
-CO2,0,0,0,0,0.00107,0,0,0
-H2O,0,0,0,0,0.11449,0,0,0
-CO2,0,0,0,0,0,0.00241,0,0
-H2O,0,0,0,0,0,0.25787,0,0
-CO2,0,0,0,0,0,0,0.00681,0
-H2O,0,0,0,0,0,0,0.72867,0
-CO2,0,0,0,0,0,0,0,0.0124
-H2O,0,0,0,0,0,0,0,1.3268
+carbon sequestration,0.000187,0,0,0,0,0,0,0
+water provision,0.020009,0,0,0,0,0,0,0
+carbon sequestration,0,1.33E-05,0,0,0,0,0,0
+water provision,0,0.0014231,0,0,0,0,0,0
+carbon sequestration,0,0,0.000316,0,0,0,0,0
+water provision,0,0,0.033812,0,0,0,0,0
+carbon sequestration,0,0,0,2.85E-05,0,0,0,0
+water provision,0,0,0,0.0030495,0,0,0,0
+carbon sequestration,0,0,0,0,0.00107,0,0,0
+water provision,0,0,0,0,0.11449,0,0,0
+carbon sequestration,0,0,0,0,0,0.00241,0,0
+water provision,0,0,0,0,0,0.25787,0,0
+carbon sequestration,0,0,0,0,0,0,0.00681,0
+water provision,0,0,0,0,0,0,0.72867,0
+carbon sequestration,0,0,0,0,0,0,0,0.0124
+water provision,0,0,0,0,0,0,0,1.3268

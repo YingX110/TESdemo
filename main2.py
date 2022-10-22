@@ -81,14 +81,17 @@ class Process:
 
 class LcaSystem:
     def __init__(self, PDic, dfA, dfD, wt):
+        ''' There is a 1 v 1 relationshipt between elem flow and ES, thus flow name is replaced with ES name in intv matrix '''
         self.PDic = PDic
         self.Address = self.PDic.pop('Address') # need check!!!!!!!!!
         self.SCALES = self.PDic.pop('SCALES') 
         self.SPM = self.PDic.pop('SPM') 
         self.tech_matrix = dfA.values
         self.intv_matrix = dfD.values
+        self.dfD = dfD
         self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
         self.FlowNum = self.intv_matrix.shape[0] 
+        # self.FlowName = dfD.index.unique().to_list() 
         self.wt = wt.values[0] # import as a dataframe with one row, each col represents a process, col number equals to that of A matrix
         self.processes = []
 
@@ -100,6 +103,7 @@ class LcaSystem:
             self.processes.append(process)
             if len(self.processes) == 1: # number of ES should be the same for all processes, so only record once
                 self.ESNum = len(p['ES'])
+                self.ESName = p['ES']
 
 
     @staticmethod
@@ -120,7 +124,16 @@ class LcaSystem:
             new = np.ones((self.ESNum, 1)) * v 
             old = LcaSystem.diag_mat(old, new)
         self.wt_matrix = old
+    
 
+    @staticmethod
+    def append_dic(ls):
+        res = {}
+        for k in ls[0].keys():
+            res[k] = [d[k] for d in ls]
+        return res
+
+   
 
     def S_matrix(self):
         '''
@@ -129,12 +142,19 @@ class LcaSystem:
             ...
         !!! Todo:
         consider two cases: geo unit process and lca network
+
+        !!!! Now assuming each ES has one indicator (carbon sequestration -> CO2)
+        Need to consider multiple flows for one ES
         '''
         self.WT_matrix()
         old = np.array([]) # empty array
+        ls_sup= []
         for p in self.processes:
             new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
             old = LcaSystem.diag_mat(old, new)
+            ls_sup.append(p.supply)
+
+        self.supply_es = LcaSystem.append_dic(ls_sup)
         self.supply_matrix = old * self.wt_matrix # dot product
 
 
@@ -147,7 +167,18 @@ class LcaSystem:
             ls.append(proc.f)
         Ft = np.c_[ls]
         self.Ft = Ft
-   
+    
+
+    def separate_D_matrix(self):
+        '''for previous version of intv_matrix, column names=flow names, now changed to ES name'''
+        df = self.dfD
+        dict = {}
+        wt_mat = np.diag(np.array(self.wt))
+        for f in self.ESName:
+            dict[f] = df.loc[[f]].values * wt_mat  # intv matrix for each flow
+        self.D_es = dict
+    
+
 
     def tes_cal(self):
         '''
@@ -156,6 +187,7 @@ class LcaSystem:
         '''
         self.S_matrix()
         self.f_matrix()
+        self.separate_D_matrix()
         Ft = self.Ft
         S = self.supply_matrix
         A = self.tech_matrix
@@ -175,8 +207,45 @@ class LcaSystem:
         lu, piv = lu_factor(LHS)
         res = lu_solve((lu, piv), RHS)
         self.res = res
-
+        
         return res
+
+
+    def vk_cal(self):
+        lu, piv = lu_factor(self.tech_matrix)
+        m = lu_solve((lu, piv), self.Ft)
+        vk_dict = {}
+        for es in self.ESName:
+            D = self.supply_es[es]
+            S = self.D_es[es]
+            Dm = D @ m
+            Vk = (S - Dm) / D
+            Vk_total = (S.sum() - Dm.sum()) / Dm.sum()
+            vk_dict[es] = (Vk, Vk_total)
+        self.Vk = vk_dict
+
+
+
+
+
+ 
+
+        ##### Calculate Vk
+        # xfmr_f = np.hstack((np.zeros((self.FlowNum, self.ProcNum)), np.eye(self.FlowNum)))
+        # xfmr_m = np.hstack(np.eye(self.ProcNum), np.zeros((self.ProcNum, self.ProcNum)))
+        # self.Fe = xfmr_f @ res
+        # self.m = xfmr_m @ res
+        # vVk = xfmr_f / (self.intv_matrix @ self.m)
+
+        # ls_vk = [[] for x in range(self.ESName)]
+        # for i in range(self.FlowNum):
+        #     idx = i % self.ESNum
+        #     ls_vk[idx].append(res[i])
+        # for name in self.ESName:
+
+
+        
+        
     
 
 
@@ -185,7 +254,6 @@ class LcaSystem:
         res = get_location(loc)
         return res
         
-         
 
     def barplot(self, ES):
         lu, piv = lu_factor(self.tech_matrix)
