@@ -80,20 +80,25 @@ class Process:
 
 
 class LcaSystem:
-    def __init__(self, PDic, dfA, dfD, wt):
+    def __init__(self, PDic={}, dfA=[], dfD=[], wt=[]):
         ''' There is a 1 v 1 relationshipt between elem flow and ES, thus flow name is replaced with ES name in intv matrix '''
-        self.PDic = PDic
-        self.Address = self.PDic.pop('Address') # need check!!!!!!!!!
-        self.SCALES = self.PDic.pop('SCALES') 
-        self.SPM = self.PDic.pop('SPM') 
-        self.tech_matrix = dfA.values
-        self.intv_matrix = dfD.values
-        self.dfD = dfD
-        self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
-        self.FlowNum = self.intv_matrix.shape[0] 
-        # self.FlowName = dfD.index.unique().to_list() 
-        self.wt = wt.values[0] # import as a dataframe with one row, each col represents a process, col number equals to that of A matrix
-        self.processes = []
+        try:
+            self.PDic = PDic
+            self.Address = self.PDic.pop('Address') # need check!!!!!!!!!
+            self.SCALES = self.PDic.pop('SCALES') 
+            self.SPM = self.PDic.pop('SPM') 
+            self.TYPE = self.PDic.pop('TYPE') 
+            self.processes = [] # for upr, it runs until this line
+            self.tech_matrix = dfA.values
+            self.intv_matrix = dfD.values
+            self.dfD = dfD
+            self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
+            self.FlowNum = self.intv_matrix.shape[0] 
+            # self.FlowName = dfD.index.unique().to_list() 
+            self.wt = wt.values[0] # import as a dataframe with one row, each col represents a process, col number equals to that of A matrix
+        except AttributeError:
+            pass
+       
 
 
     def add_process(self, SP_info):
@@ -104,6 +109,7 @@ class LcaSystem:
             if len(self.processes) == 1: # number of ES should be the same for all processes, so only record once
                 self.ESNum = len(p['ES'])
                 self.ESName = p['ES']
+
 
 
     @staticmethod
@@ -118,13 +124,18 @@ class LcaSystem:
             return np.vstack((up, down))
 
 
+
     def WT_matrix(self):
-        old = np.array([])
-        for v in self.wt:
-            new = np.ones((self.ESNum, 1)) * v 
-            old = LcaSystem.diag_mat(old, new)
-        self.wt_matrix = old
+        if self.TYPE == 'LCA':
+            old = np.array([])
+            for v in self.wt:
+                new = np.ones((self.ESNum, 1)) * v 
+                old = LcaSystem.diag_mat(old, new)
+            self.wt_matrix = old
+        else:
+            print('This is UPR! Function not working!')
     
+
 
     @staticmethod
     def append_dic(ls):
@@ -146,37 +157,47 @@ class LcaSystem:
         !!!! Now assuming each ES has one indicator (carbon sequestration -> CO2)
         Need to consider multiple flows for one ES
         '''
-        self.WT_matrix()
-        old = np.array([]) # empty array
-        ls_sup= []
-        for p in self.processes:
-            new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
-            old = LcaSystem.diag_mat(old, new)
-            ls_sup.append(p.supply)
+        if self.TYPE == 'LCA':
+            self.WT_matrix()
+            old = np.array([]) # empty array
+            ls_sup= []
+            for p in self.processes:
+                new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
+                old = LcaSystem.diag_mat(old, new)
+                ls_sup.append(p.supply)
 
-        self.supply_es = LcaSystem.append_dic(ls_sup)
-        self.supply_matrix = old * self.wt_matrix # dot product
+            self.supply_es = LcaSystem.append_dic(ls_sup)
+            self.supply_matrix = old * self.wt_matrix # dot product
+        else:
+            print('This is UPR! Function not working!')
 
 
     def f_matrix(self):
         '''
         final demand vector
         '''
-        ls = []
-        for proc in self.processes:
-            ls.append(proc.f)
-        Ft = np.c_[ls]
-        self.Ft = Ft
+        if self.TYPE == 'LCA':
+            ls = []
+            for proc in self.processes:
+                ls.append(proc.f)
+            Ft = np.c_[ls]
+            self.Ft = Ft
+        else:
+            print('This is UPR! Function not working!')
     
+
 
     def separate_D_matrix(self):
         '''for previous version of intv_matrix, column names=flow names, now changed to ES name'''
-        df = self.dfD
-        dict = {}
-        wt_mat = np.diag(np.array(self.wt))
-        for f in self.ESName:
-            dict[f] = df.loc[[f]].values * wt_mat  # intv matrix for each flow
-        self.D_es = dict
+        if self.TYPE == 'LCA':
+            df = self.dfD
+            dict = {}
+            wt_mat = np.diag(np.array(self.wt))
+            for f in self.ESName:
+                dict[f] = df.loc[[f]].values * wt_mat  # intv matrix for each flow
+            self.D_es = dict
+        else: 
+            print('This is UPR! Function not working!')
     
 
 
@@ -185,68 +206,52 @@ class LcaSystem:
         construct large A D C S... matrix, use tes-lca framework
         do matrix calculation
         '''
-        self.S_matrix()
-        self.f_matrix()
-        self.separate_D_matrix()
-        Ft = self.Ft
-        S = self.supply_matrix
-        A = self.tech_matrix
-        D = self.intv_matrix
-        me = np.ones((S.shape[1], 1))
-        C = np.zeros((self.ProcNum, S.shape[1]))
-        I = np.eye(self.FlowNum)
-        O = np.zeros((self.ProcNum, self.FlowNum))
+        if self.TYPE == 'LCA':
+            self.S_matrix()
+            self.f_matrix()
+            self.separate_D_matrix()
+            Ft = self.Ft
+            S = self.supply_matrix
+            A = self.tech_matrix
+            D = self.intv_matrix
+            me = np.ones((S.shape[1], 1))
+            C = np.zeros((self.ProcNum, S.shape[1]))
+            I = np.eye(self.FlowNum)
+            O = np.zeros((self.ProcNum, self.FlowNum))
 
-        AD = np.vstack((A,D))
-        OI = np.vstack((O, -I))
-        FO = np.vstack((Ft, np.zeros((self.FlowNum, 1))))
-        CS = np.vstack((C, S))
-        LHS = np.hstack((AD, OI))
-        RHS = FO - CS @ me # matrix multiplication
+            AD = np.vstack((A,D))
+            OI = np.vstack((O, -I))
+            FO = np.vstack((Ft, np.zeros((self.FlowNum, 1))))
+            CS = np.vstack((C, S))
+            LHS = np.hstack((AD, OI))
+            RHS = FO - CS @ me # matrix multiplication
 
-        lu, piv = lu_factor(LHS)
-        res = lu_solve((lu, piv), RHS)
-        self.res = res
-        
-        return res
+            lu, piv = lu_factor(LHS)
+            res = lu_solve((lu, piv), RHS)
+            self.res = res
+            
+            return res
+        else:
+            print('This is UPR! Function not working!')
+
 
 
     def vk_cal(self):
-        lu, piv = lu_factor(self.tech_matrix)
-        m = lu_solve((lu, piv), self.Ft)
-        vk_dict = {}
-        for es in self.ESName:
-            D = self.supply_es[es]
-            S = self.D_es[es]
-            Dm = D @ m
-            Vk = (S - Dm) / D
-            Vk_total = (S.sum() - Dm.sum()) / Dm.sum()
-            vk_dict[es] = (Vk, Vk_total)
-        self.Vk = vk_dict
+        if self.TYPE == 'LCA':
+            lu, piv = lu_factor(self.tech_matrix)
+            m = lu_solve((lu, piv), self.Ft)
+            vk_dict = {}
+            for es in self.ESName:
+                D = self.supply_es[es]
+                S = self.D_es[es]
+                Dm = D @ m
+                Vk = (S - Dm) / D
+                Vk_total = (S.sum() - Dm.sum()) / Dm.sum()
+                vk_dict[es] = [Vk, Vk_total]
+            self.Vk = vk_dict
+        else:
+            print('This is UPR! Function not working!')
 
-
-
-
-
- 
-
-        ##### Calculate Vk
-        # xfmr_f = np.hstack((np.zeros((self.FlowNum, self.ProcNum)), np.eye(self.FlowNum)))
-        # xfmr_m = np.hstack(np.eye(self.ProcNum), np.zeros((self.ProcNum, self.ProcNum)))
-        # self.Fe = xfmr_f @ res
-        # self.m = xfmr_m @ res
-        # vVk = xfmr_f / (self.intv_matrix @ self.m)
-
-        # ls_vk = [[] for x in range(self.ESName)]
-        # for i in range(self.FlowNum):
-        #     idx = i % self.ESNum
-        #     ls_vk[idx].append(res[i])
-        # for name in self.ESName:
-
-
-        
-        
-    
 
 
     def get_location(self):
@@ -254,6 +259,7 @@ class LcaSystem:
         res = get_location(loc)
         return res
         
+
 
     def barplot(self, ES):
         lu, piv = lu_factor(self.tech_matrix)
@@ -271,7 +277,6 @@ class LcaSystem:
             local_s += sup[ES]['local']
             PName.append(p.name)
     
-
         supply = [0] * self.ProcNum
         supply.append(allo_s); supply.append(local_s)
         demand.append(0); demand.append(0)
@@ -297,6 +302,7 @@ if __name__ == '__main__':
     # df_s1 = pd.read_csv('ES1_info.csv', index_col=0) # one scale: local+world
     df_s1 = pd.read_csv('ES1_info1.csv', index_col=0) # two scale: local+state+world
     df_s2 = pd.read_csv('ES2_info.csv', index_col=0)
+    dfupr = pd.read_csv('ES1_info_upr.csv', index_col=0) # unit processes
     df_s2['Watershed'] = df_s2.Watershed.astype(str)
     ls_df1 = [df_s1]
     ls_df2 = [df_s1, df_s2]

@@ -20,6 +20,7 @@ def format_process(ls_df):
         if flag == 0:
             dictcom = df[['name', 'location', 'type', 'final demand']].to_dict('index')
             location = df[['name', 'location']].reset_index().drop(['index'], axis=1)
+            type = df.type.unique()[0]
             flag += 1
         dictes = df[['SP name', 'SP amount', 'local demand', 'local supply']].to_dict('index')
         dictscale = df[geo_unit].dropna(axis='columns', how='all').to_dict('index')
@@ -40,6 +41,8 @@ def format_process(ls_df):
     dictcom['Address'] = location   
     dictcom['SCALES'] = SC 
     dictcom['SPM'] = SPM
+    dictcom['TYPE'] = type
+    
     return dictcom
     
 
