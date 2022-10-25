@@ -88,6 +88,7 @@ class LcaSystem:
             self.SCALES = self.PDic.pop('SCALES') 
             self.SPM = self.PDic.pop('SPM') 
             self.TYPE = self.PDic.pop('TYPE') 
+            self.PNAME = self.PDic.pop('PROC NAME')
             self.processes = [] # for upr, it runs until this line
             self.tech_matrix = dfA.values
             self.intv_matrix = dfD.values
@@ -242,8 +243,8 @@ class LcaSystem:
             m = lu_solve((lu, piv), self.Ft)
             vk_dict = {}
             for es in self.ESName:
-                D = self.supply_es[es]
-                S = self.D_es[es]
+                S = self.supply_es[es]
+                D = self.D_es[es]
                 Dm = D @ m
                 Vk = (S - Dm) / D
                 Vk_total = (S.sum() - Dm.sum()) / Dm.sum()
@@ -260,39 +261,52 @@ class LcaSystem:
         return res
         
 
-
-    def barplot(self, ES):
+    
+    def barplot(self, es):
         lu, piv = lu_factor(self.tech_matrix)
         m = lu_solve((lu, piv), self.Ft)
-        Dm = self.intv_matrix @ m
-        demand = Dm.T[0].tolist()
+        S = self.supply_es[es]
+        D = self.D_es[es]
+        Dm = D @ m
+        name = self.PNAME
+        
 
-        PName = []
-        allo_s = 0
-        local_s = 0
-        for p in self.processes:
-            sup = p.supply_disag
-            temp = sup[ES]['total'] - sup[ES]['local']
-            allo_s += temp
-            local_s += sup[ES]['local']
-            PName.append(p.name)
+
+    def coordinateplot(self):
+        pass
+
+    # def barplot(self, ES):
+    #     lu, piv = lu_factor(self.tech_matrix)
+    #     m = lu_solve((lu, piv), self.Ft)
+    #     Dm = self.intv_matrix @ m
+    #     demand = Dm.T[0].tolist()
+
+    #     PName = []
+    #     allo_s = 0
+    #     local_s = 0
+    #     for p in self.processes:
+    #         sup = p.supply_disag
+    #         temp = sup[ES]['total'] - sup[ES]['local']
+    #         allo_s += temp
+    #         local_s += sup[ES]['local']
+    #         PName.append(p.name)
     
-        supply = [0] * self.ProcNum
-        supply.append(allo_s); supply.append(local_s)
-        demand.append(0); demand.append(0)
-        PName.append('allocated s'); PName.append('local s')
+    #     supply = [0] * self.ProcNum
+    #     supply.append(allo_s); supply.append(local_s)
+    #     demand.append(0); demand.append(0)
+    #     PName.append('allocated s'); PName.append('local s')
 
-        data = {'Demand': demand, 'Supply': supply}
-        df = pd.DataFrame.from_dict(data, orient='index', columns=PName)
+    #     data = {'Demand': demand, 'Supply': supply}
+    #     df = pd.DataFrame.from_dict(data, orient='index', columns=PName)
 
-        colors = px.colors.qualitative.T10
-        fig = px.bar(df, 
-            x = df.index,
-            y = [c for c in df.columns],
-            template = 'ggplot2',
-            color_discrete_sequence = colors)
-        return fig
-        # fig.show()
+    #     colors = px.colors.qualitative.T10
+    #     fig = px.bar(df, 
+    #         x = df.index,
+    #         y = [c for c in df.columns],
+    #         template = 'ggplot2',
+    #         color_discrete_sequence = colors)
+    #     return fig
+    #     # fig.show()
         
 
        
@@ -304,6 +318,7 @@ if __name__ == '__main__':
     df_s2 = pd.read_csv('ES2_info.csv', index_col=0)
     dfupr = pd.read_csv('ES1_info_upr.csv', index_col=0) # unit processes
     df_s2['Watershed'] = df_s2.Watershed.astype(str)
+    ls_upr = [dfupr]
     ls_df1 = [df_s1]
     ls_df2 = [df_s1, df_s2]
     
@@ -320,6 +335,10 @@ if __name__ == '__main__':
     toy2 = format_process(ls_df2)
     obj2 = LcaSystem(toy2, dfA, dfD2, wt)
     obj2.add_process(SP_info)
+
+    toy3 = format_process(ls_upr)
+    obj3 = LcaSystem(PDic=toy3)
+    obj3.add_process(SP_info)
 
     res1 = obj1.tes_cal()
     res2 = obj2.tes_cal()

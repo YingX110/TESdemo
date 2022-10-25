@@ -5,6 +5,7 @@ geo_unit = ['County', 'State', 'Country', 'World', 'Watershed'] # expand this li
 
 '''
 To do: remove unnecessary white space 
+HUC code should be str instead of number, need a step to convert 
 '''
 
 
@@ -18,6 +19,7 @@ def format_process(ls_df):
         ESname = df.ES.unique()[0]
         ls_ES.append(ESname)
         if flag == 0:
+            name = df['name'].to_list()
             dictcom = df[['name', 'location', 'type', 'final demand']].to_dict('index')
             location = df[['name', 'location']].reset_index().drop(['index'], axis=1)
             type = df.type.unique()[0]
@@ -42,6 +44,7 @@ def format_process(ls_df):
     dictcom['SCALES'] = SC 
     dictcom['SPM'] = SPM
     dictcom['TYPE'] = type
+    dictcom['PROC NAME'] = name
     
     return dictcom
     
