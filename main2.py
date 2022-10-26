@@ -260,89 +260,61 @@ class LcaSystem:
         loc = self.Address.copy()
         res = get_location(loc)
         return res
-        
-
     
+
+
     def barplot(self, es, n=5):
         lu, piv = lu_factor(self.tech_matrix)
         m = lu_solve((lu, piv), self.Ft)
-        S_LOC = self.LOCALS[es]
-        S_ALLO = np.array(self.supply_es[es]) - np.array(S_LOC)
+        S_LOC = np.array(self.LOCALS[es]).sum()
+        S_ALLO = np.array(self.supply_es[es]).sum() - S_LOC
         D = self.D_es[es]
         Dm = D @ m
-        name = self.PNAME
-        
-        df = pd.DataFrame(Dm, columns = ['Demand'])
-        df['Local Supply'] = S_LOC
-        df['Allocated Supply'] = S_ALLO
-        df['Name'] = name
-        df = df.sort_values(by=['Demand'], ascending=False)
+        name = self.PNAME       
 
-        if self.ProcNum <= 5:
-            n = self.ProcNum
-            rest = df.iloc[:n]
+        df = pd.DataFrame(Dm, columns = ['Demand'])
+        df['Name'] = name
+        df = df.sort_values(by=['Demand'], ascending=False) 
+
+        if self.ProcNum <= n:
+            newname = df['Name'].to_list()
+            newname.extend(['Allocated Supply', 'Local Supply'])
+            newdemand = df['Demand'].to_list().extend([0, 0])
+            supply = [0] * self.ProcNum 
         else:
             rest = df.iloc[n:]
-        keep = df.iloc[:n]
-        add = pd.DataFrame({
-            'Demand': [rest['Demand'].sum()],
-            'Local Supply': [rest['Local Supply'].sum()],
-            'Allocated Supply': [rest['Allocated Supply'].sum()],
-            'Name': ['Others']
-        })
-        dfnew = pd.concat([keep, add]).reset_index(drop=True)
-        dfnew = dfnew.T
-        # dfnew = dfnew.set_axis(name, axis=1, inplace=False)
-        dfnew = dfnew.rename(columns=dfnew.loc['Name'])
-        dfnew = dfnew.drop('Name')
+            keep = df.iloc[:n]
+            newname = keep['Name'].to_list()
+            newname.extend(['Others', 'Allocated Supply', 'Local Supply'])
+            newdemand = keep['Demand'].to_list()
+            newdemand.extend([rest.Demand.sum(), 0, 0])
+            supply = [0] * (n + 1) 
+        
+        supply.extend([S_ALLO, S_LOC])
+        data = {'Demand': newdemand, 'Supply': supply}
+        dfdata = pd.DataFrame.from_dict(data, orient='index', columns=newname)
 
         colors = px.colors.qualitative.T10
-        fig = px.bar(dfnew, 
-            x = dfnew.index,
-            y = [c for c in dfnew.columns],
-            template = 'ggplot2',
-            color_discrete_sequence = colors)
-        fig.show()
-        # return fig
-        # return dfnew
+        fig = px.bar(dfdata, 
+                     x = dfdata.index, 
+                     y = [c for c in dfdata.columns], 
+                     template = 'ggplot2', 
+                     color_discrete_sequence = colors)
+        return fig
+        # This function is redundant because of using px.bar
+        # It will report issue for wide-form data 
+        # I guess it's because in one row, for some columns the number is not in the same formate: 
+        # 0.0 vs 1.213323 (raise issue)
+        # 0.000000 vs 1.213323 (run well)
+        # What i did is put all the values in a list (one row), then build the dictionary 
+        # and converted to dataframe. I guess, during this conversion, 
+        # panda function automatically force the data be in the same format
 
 
 
     def coordinateplot(self):
         pass
 
-    # def barplot(self, ES):
-    #     lu, piv = lu_factor(self.tech_matrix)
-    #     m = lu_solve((lu, piv), self.Ft)
-    #     Dm = self.intv_matrix @ m
-    #     demand = Dm.T[0].tolist()
-
-    #     PName = []
-    #     allo_s = 0
-    #     local_s = 0
-    #     for p in self.processes:
-    #         sup = p.supply_disag
-    #         temp = sup[ES]['total'] - sup[ES]['local']
-    #         allo_s += temp
-    #         local_s += sup[ES]['local']
-    #         PName.append(p.name)
-    
-    #     supply = [0] * self.ProcNum
-    #     supply.append(allo_s); supply.append(local_s)
-    #     demand.append(0); demand.append(0)
-    #     PName.append('allocated s'); PName.append('local s')
-
-    #     data = {'Demand': demand, 'Supply': supply}
-    #     df = pd.DataFrame.from_dict(data, orient='index', columns=PName)
-
-    #     colors = px.colors.qualitative.T10
-    #     fig = px.bar(df, 
-    #         x = df.index,
-    #         y = [c for c in df.columns],
-    #         template = 'ggplot2',
-    #         color_discrete_sequence = colors)
-    #     return fig
-    #     # fig.show()
         
 
        
