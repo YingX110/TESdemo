@@ -14,6 +14,7 @@ def format_process(ls_df):
     ls_ES = []
     SC = {}
     SPM = {}
+    LOCS = {}
 
     for df in ls_df:
         ESname = df.ES.unique()[0]
@@ -26,18 +27,17 @@ def format_process(ls_df):
             flag += 1
         dictes = df[['SP name', 'SP amount', 'local demand', 'local supply']].to_dict('index')
         dictscale = df[geo_unit].dropna(axis='columns', how='all').to_dict('index')
-
+        localS = df['local supply'].to_list()
         
         for k, v in dictcom.items():
             v[ESname] = dictes[k]
             v[ESname]['scales'] = dictscale[k]
             v['ES'] = ls_ES 
     
-
         SCALES = list(df[geo_unit].dropna(axis='columns', how='all').columns)
         strSCALES = ", ".join(str(x) for x in SCALES)
         SC[ESname] = strSCALES
-
+        LOCS[ESname] = localS
         SPM[ESname] = df['SP name'].unique()[0]
 
     dictcom['Address'] = location   
@@ -45,6 +45,7 @@ def format_process(ls_df):
     dictcom['SPM'] = SPM
     dictcom['TYPE'] = type
     dictcom['PROC NAME'] = name
+    dictcom['LOCAL S'] = LOCS
     
     return dictcom
     

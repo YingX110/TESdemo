@@ -234,7 +234,7 @@ class LcaSystem:
             y = [c for c in df.columns],
             template = 'ggplot2',
             color_discrete_sequence = colors)
-        return fig
+        return df
         # fig.show()
         
 

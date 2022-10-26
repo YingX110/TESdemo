@@ -89,6 +89,7 @@ class LcaSystem:
             self.SPM = self.PDic.pop('SPM') 
             self.TYPE = self.PDic.pop('TYPE') 
             self.PNAME = self.PDic.pop('PROC NAME')
+            self.LOCALS = self.PDic.pop('LOCAL S')
             self.processes = [] # for upr, it runs until this line
             self.tech_matrix = dfA.values
             self.intv_matrix = dfD.values
@@ -262,14 +263,49 @@ class LcaSystem:
         
 
     
-    def barplot(self, es):
+    def barplot(self, es, n=5):
         lu, piv = lu_factor(self.tech_matrix)
         m = lu_solve((lu, piv), self.Ft)
-        S = self.supply_es[es]
+        S_LOC = self.LOCALS[es]
+        S_ALLO = np.array(self.supply_es[es]) - np.array(S_LOC)
         D = self.D_es[es]
         Dm = D @ m
         name = self.PNAME
         
+        df = pd.DataFrame(Dm, columns = ['Demand'])
+        df['Local Supply'] = S_LOC
+        df['Allocated Supply'] = S_ALLO
+        df['Name'] = name
+        df = df.sort_values(by=['Demand'], ascending=False)
+
+        if self.ProcNum <= 5:
+            n = self.ProcNum
+            rest = df.iloc[:n]
+        else:
+            rest = df.iloc[n:]
+        keep = df.iloc[:n]
+        add = pd.DataFrame({
+            'Demand': [rest['Demand'].sum()],
+            'Local Supply': [rest['Local Supply'].sum()],
+            'Allocated Supply': [rest['Allocated Supply'].sum()],
+            'Name': ['Others']
+        })
+        dfnew = pd.concat([keep, add]).reset_index(drop=True)
+        dfnew = dfnew.T
+        # dfnew = dfnew.set_axis(name, axis=1, inplace=False)
+        dfnew = dfnew.rename(columns=dfnew.loc['Name'])
+        dfnew = dfnew.drop('Name')
+
+        colors = px.colors.qualitative.T10
+        fig = px.bar(dfnew, 
+            x = dfnew.index,
+            y = [c for c in dfnew.columns],
+            template = 'ggplot2',
+            color_discrete_sequence = colors)
+        fig.show()
+        # return fig
+        # return dfnew
+
 
 
     def coordinateplot(self):
