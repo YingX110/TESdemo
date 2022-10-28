@@ -5,12 +5,12 @@ import json
 from build_data_v2 import format_process
 import plotly.express as px
 from get_lonlat import get_location
+from coorplot import quadrant_plot
 
 
 f = open('SP_info5.json')
 SP_info = json.load(f)
 serviceshed = SP_info.pop('Serviceshed Boundary') 
-
 
 
 class Process:
@@ -319,7 +319,6 @@ class LcaSystem:
         Vk_tot = self.Vk[es][1] # Vk for whole supply chain
         Vk_loc = np.append(Vk_proc, Vk_tot)
         svc = serviceshed[es] # world for carbon, watershed for water
-        # Vk_sev = SP_info[SvcScale]
         Vk_svc = []
         for p in self.processes:
             svcname = p.all[es]['scales'][svc]
@@ -330,70 +329,17 @@ class LcaSystem:
         Vk_svc.append(np.mean(Vk_svc))
         name = self.PNAME
         name.append('life cycle')
-        data = {'Vk loc': Vk_loc, 'Vk svc': Vk_svc, 'Name': name}
+        data = {'Vk loc': Vk_loc, 'Vk svc': Vk_svc, 'Process': name}
         df = pd.DataFrame.from_dict(data)
-        return df
-
-
-        # xrange = [1.2*min(df['Vk loc']), 1.2*max(df['Vk loc'])]
-        # yrange = [1.2*min(df['Vk svc']), 1.2*max(df['Vk svc'])]
-        # fig = px.scatter(df, x='Vk loc', y='Vk svc', color='Name')
-        # fig.update_xaxes(range=xrange)
-        # fig.update_yaxes(range=yrange)
-        # fig.update_traces(marker=dict(size=12, line=dict(width=2,color='DarkSlateGrey')),
-        #           selector=dict(mode='markers'))
-
-        # fig.add_vline(x=0, line_width=1, line_dash="dash", line_color="black")
-        # fig.add_hline(y=0, line_width=1, line_dash="dash", line_color="black")
-
-        # block = {
-        #     'Q1': [0, 0, xrange[1], yrange[1], 'limegreen'],
-        #     'Q2': [0, 0, xrange[0], yrange[1], 'LightSkyBlue'],
-        #     'Q3': [0, 0, xrange[0], yrange[0], 'maroon'],
-        #     'Q4': [0, 0, xrange[1], yrange[0], 'goldenrod']
-        # }
-
-        # for v in block.values():
-        #     fig.add_shape(
-        #         type='rect',
-        #         x0=v[0], y0=v[1], x1=v[2], y1=v[3],
-        #         line=dict(color='black', width=0),
-        #         fillcolor=v[4],
-        #         opacity=0.6
-        #     )
-
-
-        # fig.add_shape(type="rect",
-        #     x0=0, y0=0, x1=85, y1=1,
-        #     line=dict(color="RoyalBlue", width=0),
-        #     fillcolor="limegreen", opacity=0.2)
-
-        # fig.add_shape(type="rect",
-        #     x0=0, y0=0, x1=-5, y1=1,
-        #     line=dict(color="RoyalBlue", width=0),
-        #     fillcolor="LightSkyBlue", opacity=0.7)
-      
-
-        # fig.add_shape(type="rect",
-        #     x0=0, y0=0, x1=-5, y1=-1,
-        #     line=dict(color="RoyalBlue", width=0),
-        #     fillcolor="maroon", opacity=0.4)
-
-        # fig.add_shape(type="rect",
-        #     x0=0, y0=0, x1=85, y1=-1,
-        #     line=dict(color="RoyalBlue", width=0),
-        #     fillcolor="goldenrod", opacity=0.4)
-
-
-        fig.show()
-
-
         
+        xax = 'Vk loc'
+        yax = 'Vk svc'
+        col = 'Process'
+        fig = quadrant_plot(df, xax, yax, col)
         
+        return fig
 
-        
-
-       
+  
 
 if __name__ == '__main__':
 

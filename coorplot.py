@@ -36,6 +36,7 @@ def quadrant_plot(df, xax, yax, col):
     # fig.show()
 
 if __name__ == '__main__':
+    '''To test, need change self.coordinateplot(es) function -> return df'''
     from main2 import *
     df_s1 = pd.read_csv('ES1_info1.csv', index_col=0)
     ls_df1 = [df_s1]
@@ -52,6 +53,7 @@ if __name__ == '__main__':
     df = obj1.coordinateplot(es)
     xax = 'Vk loc'
     yax = 'Vk svc'
-    col = 'Name'
+    col = 'Process'
+    
     quadrant_plot(df, xax, yax, col)
 
