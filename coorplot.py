@@ -1,8 +1,9 @@
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 
 
-def Quadrant_plot(df, xax, yax, col):
+def quadrant_plot(df, xax, yax, col):
 
     xrange = [min(df[xax])-5, max(df[xax])+5]
     yrange = [min(df[yax])-5, max(df[yax])+5]
@@ -29,9 +30,10 @@ def Quadrant_plot(df, xax, yax, col):
             x0=v[0], y0=v[1], x1=v[2], y1=v[3],
             line=dict(color='black', width=0),
             fillcolor=v[4],
-            opacity=0.6
+            opacity=0.4
         )
-    fig.show()
+    return fig
+    # fig.show()
 
 if __name__ == '__main__':
     from main2 import *
@@ -45,6 +47,11 @@ if __name__ == '__main__':
     toy1 = format_process(ls_df1)
     obj1 = LcaSystem(toy1, dfA, dfD1, wt)
     obj1.add_process(SP_info)
+    res1 = obj1.tes_cal()
     es = 'carbon sequestration'
     df = obj1.coordinateplot(es)
+    xax = 'Vk loc'
+    yax = 'Vk svc'
+    col = 'Name'
+    quadrant_plot(df, xax, yax, col)
 
