@@ -156,18 +156,23 @@ watershed = SP_construct(watershed_info, watershed_dmd, watershed_pubS, watershe
 # SP_info = {**county, **state, **country, **world, **watershed}
 # SP_info = county | state | country | world | watershed
 
+serviceshed = {
+    'carbon sequestration': 'World',
+    'water provision': 'Watershed'
+}
 
 SP_info = {
     'County': county,
     'State': state,
     'Country': country,
     'World': world,
-    'Watershed': watershed
+    'Watershed': watershed,
+    'Serviceshed Boundary': serviceshed
 }
 
 
 json_object = json.dumps(SP_info, indent = 4) 
-with open("SP_info4.json", "w") as outfile:
+with open("SP_info5.json", "w") as outfile:
     json.dump(SP_info, outfile)
 
 print('done!')

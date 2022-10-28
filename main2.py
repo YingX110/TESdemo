@@ -7,8 +7,9 @@ import plotly.express as px
 from get_lonlat import get_location
 
 
-f = open('SP_info4.json')
+f = open('SP_info5.json')
 SP_info = json.load(f)
+serviceshed = SP_info.pop('Serviceshed Boundary') 
 
 
 
@@ -244,10 +245,10 @@ class LcaSystem:
             m = lu_solve((lu, piv), self.Ft)
             vk_dict = {}
             for es in self.ESName:
-                S = self.supply_es[es]
+                S = np.c_[self.supply_es[es]]
                 D = self.D_es[es]
                 Dm = D @ m
-                Vk = (S - Dm) / D
+                Vk = (S - Dm) / Dm
                 Vk_total = (S.sum() - Dm.sum()) / Dm.sum()
                 vk_dict[es] = [Vk, Vk_total]
             self.Vk = vk_dict
@@ -263,7 +264,7 @@ class LcaSystem:
     
 
 
-    def barplot(self, es, n=5):
+    def barplot(self, es='carbon sequestration', n=5):
         lu, piv = lu_factor(self.tech_matrix)
         m = lu_solve((lu, piv), self.Ft)
         S_LOC = np.array(self.LOCALS[es]).sum()
@@ -312,8 +313,83 @@ class LcaSystem:
 
 
 
-    def coordinateplot(self):
-        pass
+    def coordinateplot(self, es='carbon sequestration'):
+        self.vk_cal()
+        Vk_proc = self.Vk[es][0] # Vk for each process
+        Vk_tot = self.Vk[es][1] # Vk for whole supply chain
+        Vk_loc = np.append(Vk_proc, Vk_tot)
+        svc = serviceshed[es] # world for carbon, watershed for water
+        # Vk_sev = SP_info[SvcScale]
+        Vk_svc = []
+        for p in self.processes:
+            svcname = p.all[es]['scales'][svc]
+            D = SP_info[svc][svcname]['demand'][es]
+            S = SP_info[svc][svcname]['total supply'][es]
+            vk = (S-D) / D
+            Vk_svc.append(vk)
+        Vk_svc.append(np.mean(Vk_svc))
+        name = self.PNAME
+        name.append('life cycle')
+        data = {'Vk loc': Vk_loc, 'Vk svc': Vk_svc, 'Name': name}
+        df = pd.DataFrame.from_dict(data)
+        return df
+
+
+        # xrange = [1.2*min(df['Vk loc']), 1.2*max(df['Vk loc'])]
+        # yrange = [1.2*min(df['Vk svc']), 1.2*max(df['Vk svc'])]
+        # fig = px.scatter(df, x='Vk loc', y='Vk svc', color='Name')
+        # fig.update_xaxes(range=xrange)
+        # fig.update_yaxes(range=yrange)
+        # fig.update_traces(marker=dict(size=12, line=dict(width=2,color='DarkSlateGrey')),
+        #           selector=dict(mode='markers'))
+
+        # fig.add_vline(x=0, line_width=1, line_dash="dash", line_color="black")
+        # fig.add_hline(y=0, line_width=1, line_dash="dash", line_color="black")
+
+        # block = {
+        #     'Q1': [0, 0, xrange[1], yrange[1], 'limegreen'],
+        #     'Q2': [0, 0, xrange[0], yrange[1], 'LightSkyBlue'],
+        #     'Q3': [0, 0, xrange[0], yrange[0], 'maroon'],
+        #     'Q4': [0, 0, xrange[1], yrange[0], 'goldenrod']
+        # }
+
+        # for v in block.values():
+        #     fig.add_shape(
+        #         type='rect',
+        #         x0=v[0], y0=v[1], x1=v[2], y1=v[3],
+        #         line=dict(color='black', width=0),
+        #         fillcolor=v[4],
+        #         opacity=0.6
+        #     )
+
+
+        # fig.add_shape(type="rect",
+        #     x0=0, y0=0, x1=85, y1=1,
+        #     line=dict(color="RoyalBlue", width=0),
+        #     fillcolor="limegreen", opacity=0.2)
+
+        # fig.add_shape(type="rect",
+        #     x0=0, y0=0, x1=-5, y1=1,
+        #     line=dict(color="RoyalBlue", width=0),
+        #     fillcolor="LightSkyBlue", opacity=0.7)
+      
+
+        # fig.add_shape(type="rect",
+        #     x0=0, y0=0, x1=-5, y1=-1,
+        #     line=dict(color="RoyalBlue", width=0),
+        #     fillcolor="maroon", opacity=0.4)
+
+        # fig.add_shape(type="rect",
+        #     x0=0, y0=0, x1=85, y1=-1,
+        #     line=dict(color="RoyalBlue", width=0),
+        #     fillcolor="goldenrod", opacity=0.4)
+
+
+        fig.show()
+
+
+        
+        
 
         
 
@@ -350,7 +426,10 @@ if __name__ == '__main__':
 
     res1 = obj1.tes_cal()
     res2 = obj2.tes_cal()
-    # obj2.barplot('carbon sequestration')
+
+    obj1.vk_cal()
+    obj2.vk_cal()
+  
 
     # resloc = obj1.get_location()
 

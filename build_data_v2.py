@@ -1,13 +1,10 @@
 import pandas as pd
-
-geo_unit = ['County', 'State', 'Country', 'World', 'Watershed'] # expand this list when more ESs are added to the ecological data inventory
-
-
 '''
 To do: remove unnecessary white space 
 HUC code should be str instead of number, need a step to convert 
 '''
 
+geo_unit = ['County', 'State', 'Country', 'World', 'Watershed'] # expand this list when more ESs are added to the ecological data inventory
 
 def format_process(ls_df):
     flag = 0
