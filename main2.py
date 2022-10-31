@@ -8,7 +8,8 @@ from get_lonlat import get_location
 from coorplot import quadrant_plot
 
 
-f = open('SP_info5.json')
+# f = open('SP_info5.json')
+f = open('SP_info_wGVA.json')
 SP_info = json.load(f)
 serviceshed = SP_info.pop('Serviceshed Boundary') 
 
@@ -347,8 +348,10 @@ if __name__ == '__main__':
     df_s1 = pd.read_csv('ES1_info1.csv', index_col=0) # two scale: local+state+world
     df_s2 = pd.read_csv('ES2_info.csv', index_col=0)
     dfupr = pd.read_csv('ES1_info_upr.csv', index_col=0) # unit processes
+    dfnh3 = pd.read_csv('ES_info_nh3.csv', index_col=0)
     df_s2['Watershed'] = df_s2.Watershed.astype(str)
     ls_upr = [dfupr]
+    ls_nh3 = [dfnh3]
     ls_df1 = [df_s1]
     ls_df2 = [df_s1, df_s2]
     
@@ -369,6 +372,12 @@ if __name__ == '__main__':
     toy3 = format_process(ls_upr)
     obj3 = LcaSystem(PDic=toy3)
     obj3.add_process(SP_info)
+
+    SP_nh3 = SP_info.copy()
+    SP_nh3['World']['World']['public supply']['carbon sequestration'] = 1532777777.8
+    toy_nh3 = format_process(ls_nh3)
+    obj_nh3 = LcaSystem(PDic=toy_nh3)
+    obj_nh3.add_process(SP_nh3)
 
     res1 = obj1.tes_cal()
     res2 = obj2.tes_cal()

@@ -1,0 +1,5 @@
+,name,location,type,final demand,SP name,SP amount,ES,local demand,local supply,County,State,Country,World,Watershed
+process1,NH3 production (BAU),United States,Unit process,,gva,1.81E+03,carbon sequestration,5.03E+07,0,,,United States,World,
+process2,NH3 production (BAU),China,Unit process,,gva,2.23E+03,carbon sequestration,2.48E+08,0,,,China,World,
+process3,NH3 production (BAU),Russian Federation,Unit process,,gva,8.02E+02,carbon sequestration,6.45E+07,0,,,Russian Federation,World,
+process4,NH3 production (BAU),India,Unit process,,gva,8.68E+02,carbon sequestration,5.67E+07,0,,,India,World,
