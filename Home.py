@@ -20,9 +20,36 @@ def set_bg_hack(main_bg):
 
 set_bg_hack('images/nature2.jpg')
 
-st.markdown("<h1 style='text-align: center; color: white; font-size: 53px;'>Towards the Global Goal <br> for Nature </h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: white; font-size: 22px;'><q>As humans we are born of the Earth, <br> nourished by the Earth, <br> healed by the Earth</q></p>", unsafe_allow_html=True)
+# st.markdown("<h1 style='text-align: center; color: white; font-size: 53px;'>Towards the Global Goal <br> for Nature </h1>", unsafe_allow_html=True)
+# st.markdown("<p style='text-align: center; color: white; font-size: 22px;'>
+# <q>As humans we are born of the Earth, <br> nourished by the Earth, <br> healed by the Earth</q></p>", unsafe_allow_html=True)
 
-# st.sidebar.write(
-#     f"This app shows how a Streamlit app can interact easily with a to read or store data."
-# )
+with open("style.css") as f:
+    st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
+
+
+
+st.markdown('<h1 class="homeh1">Towards the Global Goal <br> for Nature</h1>', unsafe_allow_html=True)
+st.text('')
+st.text('')
+st.text('')
+st.text('')
+st.markdown('<p class="homep"><q>As humans we are born of the Earth, <br> nourished by the Earth, <br> healed by the Earth</q></p>', unsafe_allow_html=True)
+
+
+col1,col2, col3 = st.columns(3)
+with col2:
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.markdown('<a href="https://cbe.osu.edu/bakshi-sustainable-engineering-research-group" target="_blank" rel="noopener noreferrer" class="btn">Visit Us To Know More</a>', unsafe_allow_html=True)
