@@ -1,0 +1,30 @@
+h1 {
+    width: 800px;
+    height: 180px;
+    margin: 0;
+    /* background-color: gray; */
+    font-size: 50px;
+    color: rgb(10, 41, 4);
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.css-1cpxqw2.edgvbvh9 {
+    color: rgb(0, 7, 1);
+    font-size: 20px;
+    background: transparent;
+    position: relative;
+    cursor: pointer;
+    border: 1px solid rgba(65, 67, 78, 0.2);
+}
+
+.css-1cpxqw2.edgvbvh9:hover{
+    border: 2px solid #b8c6da;
+    background: #b8c6da;
+    transition: 1s;
+}
+
+
+
+
