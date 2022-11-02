@@ -1,18 +1,7 @@
-h1 {
-    width: 800px;
-    height: 180px;
-    margin: 0;
-    /* background-color: gray; */
-    font-size: 50px;
-    color: rgb(10, 41, 4);
-    display: table-cell;
-    vertical-align: middle;
-    text-align: center;
-}
 
 .css-1cpxqw2.edgvbvh9 {
     color: rgb(0, 7, 1);
-    font-size: 20px;
+    font-size: 18px;
     background: transparent;
     position: relative;
     cursor: pointer;
@@ -20,8 +9,8 @@ h1 {
 }
 
 .css-1cpxqw2.edgvbvh9:hover{
-    border: 2px solid #b8c6da;
-    background: #b8c6da;
+    border: 1px solid #b8dac7ce;
+    background: #b8dac7ce;
     transition: 1s;
 }
 
@@ -60,7 +49,31 @@ h1 {
     text-align: center;
 }
 
+.css-15tx938.effi0qh3 {
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-weight: 200;
+}
 
+
+
+.calh1 {
+    /* width: 800px;
+    height: 160px;
+    margin: 0; */
+    /* background-color: gray; */
+    font-size: 50px;
+    color: rgb(206, 194, 194);
+    /* display: table-cell; */
+    /* vertical-align: middle; */
+    text-align: center;
+}
+
+.calp {
+    color: rgb(206, 194, 194);
+    font-size: 18px;
+    text-align: center;
+}
 
 /* a:link, a:visited {
     background-color: #f44336;
