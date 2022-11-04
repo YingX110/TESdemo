@@ -55,7 +55,7 @@ with col2:
     st.text("")
     st.text("")
     st.text("")
-    with open("template.zip", "rb") as fp:
+    with open("./user_input_data/template.zip", "rb") as fp:
         btn = st.download_button(
             label="Template Download 📁 (.zip)",
             data=fp,
