@@ -14,11 +14,12 @@ county_area = pd.read_csv('./data_inventory/County_Area.csv', index_col=0)
 county_gdp = pd.read_csv('./data_inventory/County_GDP.csv', index_col=0)
 county_invgdp = pd.read_csv('./data_inventory/County_invGDP.csv', index_col=0)
 county_Dmd_C = pd.read_csv('./data_inventory/County_Emi_C.csv', index_col=0)
+county_gva = pd.read_csv('./data_inventory/County_GVA.csv', index_col=0)
 
 county_TotalC = pd.read_csv('./data_inventory/County_TotalC.csv', index_col=0)
 county_PubC = pd.read_csv('./data_inventory/County_PubC.csv', index_col=0)
 
-county_info = [county_pop, county_area, county_gdp, county_invgdp]
+county_info = [county_pop, county_area, county_gdp, county_invgdp, county_gva]
 county_dmd = [county_Dmd_C]
 county_pubS = [county_PubC]
 county_totS = [county_TotalC]
@@ -30,12 +31,13 @@ state_area = pd.read_csv('./data_inventory/State_Area.csv', index_col=0)
 state_gdp = pd.read_csv('./data_inventory/State_GDP.csv', index_col=0)
 state_invgdp = pd.read_csv('./data_inventory/State_invGDP.csv', index_col=0)
 state_Dmd_C  = pd.read_csv('./data_inventory/State_Emi_C.csv', index_col=0)
+state_gva = pd.read_csv('./data_inventory/State_GVA.csv', index_col=0)
 
 state_PubC = pd.read_csv('./data_inventory/State_PubC.csv', index_col=0)
 state_TotalC = pd.read_csv('./data_inventory/State_TotalC.csv', index_col=0)
 
 
-state_info = [state_pop, state_area, state_gdp, state_invgdp]
+state_info = [state_pop, state_area, state_gdp, state_invgdp, state_gva]
 state_dmd = [state_Dmd_C]
 state_pubS = [state_PubC]
 state_totS = [state_TotalC]
@@ -47,11 +49,12 @@ country_area = pd.read_csv('./data_inventory/Nation_Area.csv', index_col=0)
 country_gdp = pd.read_csv('./data_inventory/Nation_GDP.csv', index_col=0)
 country_invgdp = pd.read_csv('./data_inventory/Nation_invGDP.csv', index_col=0)
 country_Dmd_C  = pd.read_csv('./data_inventory/Nation_Emi_C.csv', index_col=0)
+country_gva = pd.read_csv('./data_inventory/Nation_GVA.csv', index_col=0)
 
 country_PubC = pd.read_csv('./data_inventory/Nation_PubC.csv', index_col=0)
 country_TotalC = pd.read_csv('./data_inventory/Nation_TotalC.csv', index_col=0)
 
-country_info = [country_pop, country_area, country_gdp, country_invgdp]
+country_info = [country_pop, country_area, country_gdp, country_invgdp, country_gva]
 country_dmd = [country_Dmd_C]
 country_pubS = [country_PubC]
 country_totS = [country_TotalC]
@@ -63,11 +66,12 @@ world_area = pd.read_csv('./data_inventory/World_Area.csv', index_col=0)
 world_gdp = pd.read_csv('./data_inventory/World_GDP.csv', index_col=0)
 world_invgdp = pd.read_csv('./data_inventory/World_invGDP.csv', index_col=0)
 world_Dmd_C  = pd.read_csv('./data_inventory/World_Emi_C.csv', index_col=0)
+world_gva = pd.read_csv('./data_inventory/World_GVA.csv', index_col=0)
 
 world_PubC = pd.read_csv('./data_inventory/World_PubC.csv', index_col=0)
 world_TotalC = pd.read_csv('./data_inventory/World_TotalC.csv', index_col=0)
 
-world_info = [world_pop, world_area, world_gdp, world_invgdp]
+world_info = [world_pop, world_area, world_gdp, world_invgdp, world_gva]
 world_dmd = [world_Dmd_C]
 world_pubS  = [world_PubC]
 world_totS = [world_TotalC]
@@ -80,11 +84,12 @@ watershed_area = pd.read_csv('./data_inventory/Watershed_Area.csv', index_col=0)
 watershed_gdp = pd.read_csv('./data_inventory/Watershed_GDP.csv', index_col=0)
 watershed_invgdp = pd.read_csv('./data_inventory/Watershed_invGDP.csv', index_col=0)
 watershed_Dmd_C  = pd.read_csv('./data_inventory/Watershed_Emi_C.csv', index_col=0)
+watershed_gva = pd.read_csv('./data_inventory/Watershed_GVA.csv', index_col=0)
 
 watershed_PubC = pd.read_csv('./data_inventory/Watershed_PubC.csv', index_col=0)
 watershed_TotalC = pd.read_csv('./data_inventory/Watershed_TotalC.csv', index_col=0)
 
-watershed_info = [watershed_pop, watershed_area, watershed_gdp, watershed_invgdp]
+watershed_info = [watershed_pop, watershed_area, watershed_gdp, watershed_invgdp, watershed_gva]
 watershed_dmd = [watershed_Dmd_C]
 watershed_pubS = [watershed_PubC]
 watershed_totS = [watershed_TotalC]
@@ -156,18 +161,23 @@ watershed = SP_construct(watershed_info, watershed_dmd, watershed_pubS, watershe
 # SP_info = {**county, **state, **country, **world, **watershed}
 # SP_info = county | state | country | world | watershed
 
+serviceshed = {
+    'carbon sequestration': 'World',
+    'water provision': 'Watershed'
+}
 
 SP_info = {
     'County': county,
     'State': state,
     'Country': country,
     'World': world,
-    'Watershed': watershed
+    'Watershed': watershed,
+    'Serviceshed Boundary': serviceshed
 }
 
 
 json_object = json.dumps(SP_info, indent = 4) 
-with open("SP_info4.json", "w") as outfile:
+with open("SP_info_wGVA.json", "w") as outfile:
     json.dump(SP_info, outfile)
 
 print('done!')

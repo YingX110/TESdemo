@@ -1,84 +1,83 @@
-'''
-Read user input daat from spreadsheet
-constract proc_info as below
-'''
 import pandas as pd
+'''
+To do: remove unnecessary white space 
+HUC code should be str instead of number, need a step to convert 
+'''
 
-# xl_u = pd.ExcelFile('./user_input_data/input_uni.xlsx')
-# xl_s = pd.ExcelFile('./user_input_data/input_template0.xlsx')
+geo_unit = ['County', 'State', 'Country', 'World', 'Watershed'] # expand this list when more ESs are added to the ecological data inventory
 
+def format_process(ls_df):
+    flag = 0
+    ls_ES = []
+    SC = {}
+    SPM = {}
+    LOCS = {}
 
-def df_dic(df):
-    df.columns = ['cat', 'val']
-    return dict(zip(df.cat,df.val))
+    for df in ls_df:
+        ESname = df.ES.unique()[0]
+        ls_ES.append(ESname)
+        if flag == 0:
+            name = df['name'].to_list()
+            dictcom = df[['name', 'location', 'type', 'final demand']].to_dict('index')
+            location = df[['name', 'location']].reset_index().drop(['index'], axis=1)
+            type = df.type.unique()[0]
+            flag += 1
+        dictes = df[['SP name', 'SP amount', 'local demand', 'local supply']].to_dict('index')
+        dictscale = df[geo_unit].dropna(axis='columns', how='all').to_dict('index')
+        localS = df['local supply'].to_list()
+        
+        for k, v in dictcom.items():
+            v[ESname] = dictes[k]
+            v[ESname]['scales'] = dictscale[k]
+            v['ES'] = ls_ES 
+    
+        SCALES = list(df[geo_unit].dropna(axis='columns', how='all').columns)
+        strSCALES = ", ".join(str(x) for x in SCALES)
+        SC[ESname] = strSCALES
+        LOCS[ESname] = localS
+        SPM[ESname] = df['SP name'].unique()[0]
 
+    dictcom['Address'] = location   
+    dictcom['SCALES'] = SC 
+    dictcom['SPM'] = SPM
+    dictcom['TYPE'] = type
+    dictcom['PROC NAME'] = name
+    dictcom['LOCAL S'] = LOCS
+    
+    return dictcom
+    
 
-def dic_process(xl):
-    sheets = xl.sheet_names
-    LCAsys = {} 
-
-    for st in sheets:
-        df = xl.parse(st) 
-        ESs = list(df.ES.unique())
-        scale_es = {}
-        sp_es = {}
-        dicmeth = {}
-        dicsloc = {}
-        es_No = 0
-
-        for es in ESs:
-            dfe = df[df['ES'] == es]
-            scale_col = ['scales-general','scales-specific']
-            sp_col = ['SP info-name','SP info-amount']
-            spmeth = dfe.loc[dfe['ES'] == es, 'sharing principle method'].values[0]
-            slocal = dfe.loc[dfe['ES'] == es, 'ES local supply'].values[0]
-            dfscale = dfe.loc[:, scale_col]
-            dfsp = dfe.loc[:, sp_col]
-
-            if es_No == 0: # execute for the first ES on spreadsheet, these info are identical for all ESs
-                tech_col = ['name','location','final demand', 'type']
-                dftech = dfe.loc[:, tech_col]
-                dftech = dftech.dropna(how='all').T.reset_index() # note change
-                dictech = df_dic(dftech)
-                es_No = 1
-
-            dicmeth[es] = spmeth
-            dicsloc[es] = slocal
-
-            dfscale = dfscale.dropna()
-            dfsp = dfsp.dropna()
-            scale_es[es] = df_dic(dfscale)
-            sp_es[es] = df_dic(dfsp)
-
-        dicmeth = {'sharing principle method': dicmeth}
-        dicsloc = {'ES local supply': dicsloc}
-        dicscale = {'scales': scale_es}
-        dicsp = {'SP info': sp_es}
-
-        process = dictech | dicscale | dicsp | dicmeth | dicsloc
-
-        if process['type'] == 'LCA': # seperate LCA system and Geo-unit process
-            LCAsys[st] = process
-        else:
-            LCAsys = process
-    return LCAsys
+if __name__ == '__main__':
+    df1 = pd.read_csv('ES1_info1.csv', index_col=0)
+    df2 = pd.read_csv('ES2_info.csv', index_col=0)
+    ls_df = [df1, df2]
+    res = format_process(ls_df)
+    print('dead already')
 
 
-
-# pro_u = dic_process(xl_u)
-# pro_s= dic_process(xl_s)
-
-# print('done!')
-
-# def get_intv(list, r):
-#     list = [0] + list + [r]
-#     res = []
-#     for i in range(len(list)-1):
-#         intv = range(list[i], list[i+1])
-#         res.append(intv)
-#     return res
-
-
-
-
-
+# sys = {
+#     'process1':{
+#         'name': 'K Fert production',
+#         'local': 'Eddy county, NM',
+#         'final demand': 0,
+#         'ES': {
+#             'carbon sequestration': {
+#                 'SP name': 'demand',
+#                 'SP amount': 0.000188,
+#                 'local demand': 0.000188,
+#                 'local supply': 1.36e-07,
+#                 'scales': {'World': 'World'}
+#             },
+#             'water provision': {
+#                 'SP name': 'demand',
+#                 'SP amount': 129.37,
+#                 'local demand': 8.721,
+#                 'local supply': 5.426,
+#                 'scales': {'Watershed': 15050303}
+#             }
+#         }
+#     },
+#     'process2': {...},
+#     'process3': {...},
+#     ...
+# }

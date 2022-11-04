@@ -1,17 +1,17 @@
-from ast import main
 import pandas as pd
 import numpy as np
-# from numpy.linalg import inv
 from scipy.linalg import lu_factor, lu_solve
 import json
-from build_data import dic_process
-# import matplotlib.pyplot as plt
+from build_data_v2 import format_process
 import plotly.express as px
+from get_lonlat import get_location
+from coorplot import quadrant_plot
 
 
-f = open('SP_info3.json')
+# f = open('SP_info5.json')
+f = open('SP_info_wGVA.json')
 SP_info = json.load(f)
-
+serviceshed = SP_info.pop('Serviceshed Boundary') 
 
 
 class Process:
@@ -19,36 +19,29 @@ class Process:
         self.name = info['name'] # this is used for geo-unit process: 'county', 'state', 'country'...
         self.type = info['type'] # LCA or geo unit
         self.location = info['location'] # this is used for geo-unit process: fips for county, state name for states
-        self.scales = info['scales']
         self.f = info['final demand']
-        self.local_supply = info['ES local supply']
-        self.sharingP = info['sharing principle method']
-        self.SPinfo = info['SP info']
+        self.ESname = info['ES']
         self.supply_disag = {}
         self.supply = {}
+        self.all = info
 
 
-
-    # def cal_supply(self, proc_info, SP_info):
     def cal_supply(self, SP_info):
         '''
         !! Todo:
         robust requirement: should consider none -> add a if condition
 
-        ES_name: [C sequestration, Water provision...]
+        ES: [C sequestration, Water provision...]
         sp_name: demand/population/area/gdp/inverse gdp
         '''
-        type =  self.type
-        # scales = proc_info['scales'] 
-        scales = self.scales
-        ES_name = list(scales.keys()) 
-        # SP_meth = self.sharingP
         
-        for es in ES_name:
-            SP_meth = self.sharingP[es]
+        for es in self.ESname:
+            ESinfo = self.all[es] # for Ecosystem service X
+            scales = ESinfo['scales']
+            SP_meth = ESinfo['SP name']
             self.supply_disag[es] = {}
 
-            if type == 'Geo-unit process':
+            if self.type == 'Geo-unit process':
                 '''
                 If a geo-unit (county/state/country...) be considered as 
                 a unit process, local info are not required from users
@@ -59,16 +52,14 @@ class Process:
                 else:
                     sp_amount_L = SP_info[self.name][self.location][SP_meth]
             else:
-                # local_S = proc_info['ES local supply'][es]
-                local_S = self.local_supply[es]
-                # sp_amount_L = proc_info['SP info'][es][SP_meth]
-                sp_amount_L = self.SPinfo[es][SP_meth]
+                local_S = ESinfo['local supply']
+                sp_amount_L = ESinfo['SP amount']
             
             self.supply_disag[es]['local'] = local_S
             allo_S = 0
             frac = 1
 
-            for k, v in scales[es].items(): 
+            for k, v in scales.items(): 
                 '''
                 k: general scale name: County, State, Watershed...
                 v: specific location name: Ohio, United States...
@@ -86,41 +77,43 @@ class Process:
                 sp_amount_L = sp_amount_H
                 self.supply_disag[es][k] = frac * S
             self.supply[es] = allo_S + local_S
-            self.supply_disag[es]['total'] = allo_S + local_S
+            # self.supply_disag[es]['total'] = allo_S + local_S
 
 
 
 class LcaSystem:
-    def __init__(self, PDic, dfA, dfD, wt):
-        self.PDic = PDic
-        self.tech_matrix = dfA.values
-        self.intv_matrix = dfD.values
-        self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
-        self.FlowNum = self.intv_matrix.shape[0] 
-        # self.wt = np.diag(wt.values[0]) # weighting factors for allocating supply for main/byproducts
-        self.wt = wt.values[0] # import as a dataframe with one row, each col represents a process, col number equals to that of A matrix
-        self.processes = []
+    def __init__(self, PDic={}, dfA=[], dfD=[], wt=[]):
+        ''' There is a 1 v 1 relationshipt between elem flow and ES, thus flow name is replaced with ES name in intv matrix '''
+        try:
+            self.PDic = PDic
+            self.Address = self.PDic.pop('Address') # need check!!!!!!!!!
+            self.SCALES = self.PDic.pop('SCALES') 
+            self.SPM = self.PDic.pop('SPM') 
+            self.TYPE = self.PDic.pop('TYPE') 
+            self.PNAME = self.PDic.pop('PROC NAME')
+            self.LOCALS = self.PDic.pop('LOCAL S')
+            self.processes = [] # for upr, it runs until this line
+            self.tech_matrix = dfA.values
+            self.intv_matrix = dfD.values
+            self.dfD = dfD
+            self.ProcNum = self.tech_matrix.shape[1] # number of processes - column
+            self.FlowNum = self.intv_matrix.shape[0] 
+            # self.FlowName = dfD.index.unique().to_list() 
+            self.wt = wt.values[0] # import as a dataframe with one row, each col represents a process, col number equals to that of A matrix
+        except AttributeError:
+            pass
+       
 
 
-    # def add_process(self, data, SP_info):
     def add_process(self, SP_info):
-        # for p in data.values():
         for p in self.PDic.values():
             process = Process(p)
             process.cal_supply(SP_info)
             self.processes.append(process)
-            if len(self.processes) == 1:
-                es_num = len(process.scales.keys()) # number of ecosystem services considered in the system
-                self.ESNum = es_num
-        
+            if len(self.processes) == 1: # number of ES should be the same for all processes, so only record once
+                self.ESNum = len(p['ES'])
+                self.ESName = p['ES']
 
-    # def AD_matrix(self):
-    #     mat_A = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0).values # technology matrix
-    #     mat_D = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0).values # intervention matrix
-    #     self.tech_matrix = mat_A
-    #     self.intv_matrix = mat_D
-    #     self.ProcNum = mat_A.shape[1] # number of processes - column
-    #     self.FlowNum = mat_D.shape[0] # number of elementary flows - row
 
 
     @staticmethod
@@ -135,13 +128,27 @@ class LcaSystem:
             return np.vstack((up, down))
 
 
-    def WT_matrix(self):
-        old = np.array([])
-        for v in self.wt:
-            new = np.ones((self.ESNum, 1)) * v 
-            old = LcaSystem.diag_mat(old, new)
-        self.wt_matrix = old
 
+    def WT_matrix(self):
+        if self.TYPE == 'LCA':
+            old = np.array([])
+            for v in self.wt:
+                new = np.ones((self.ESNum, 1)) * v 
+                old = LcaSystem.diag_mat(old, new)
+            self.wt_matrix = old
+        else:
+            print('This is UPR! Function not working!')
+    
+
+
+    @staticmethod
+    def append_dic(ls):
+        res = {}
+        for k in ls[0].keys():
+            res[k] = [d[k] for d in ls]
+        return res
+
+   
 
     def S_matrix(self):
         '''
@@ -150,122 +157,242 @@ class LcaSystem:
             ...
         !!! Todo:
         consider two cases: geo unit process and lca network
+
+        !!!! Now assuming each ES has one indicator (carbon sequestration -> CO2)
+        Need to consider multiple flows for one ES
         '''
-        self.WT_matrix()
-        old = np.array([]) # empty array
-        for p in self.processes:
-            new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
-            old = LcaSystem.diag_mat(old, new)
-        self.supply_matrix = np.dot(old, self.wt_matrix)
+        if self.TYPE == 'LCA':
+            self.WT_matrix()
+            old = np.array([]) # empty array
+            ls_sup= []
+            for p in self.processes:
+                new = np.c_[list(p.supply.values())] # convert the list of supply to a vertical vector
+                old = LcaSystem.diag_mat(old, new)
+                ls_sup.append(p.supply)
+
+            self.supply_es = LcaSystem.append_dic(ls_sup)
+            self.supply_matrix = old * self.wt_matrix # dot product
+        else:
+            print('This is UPR! Function not working!')
 
 
     def f_matrix(self):
         '''
         final demand vector
         '''
-        ls = []
-        for proc in self.processes:
-            ls.append(proc.f)
-        Ft = np.c_[ls]
-        self.Ft = Ft
-   
+        if self.TYPE == 'LCA':
+            ls = []
+            for proc in self.processes:
+                ls.append(proc.f)
+            Ft = np.c_[ls]
+            self.Ft = Ft
+        else:
+            print('This is UPR! Function not working!')
+    
+
+
+    def separate_D_matrix(self):
+        '''for previous version of intv_matrix, column names=flow names, now changed to ES name'''
+        if self.TYPE == 'LCA':
+            df = self.dfD
+            dict = {}
+            wt_mat = np.diag(np.array(self.wt))
+            for f in self.ESName:
+                dict[f] = df.loc[[f]].values * wt_mat  # intv matrix for each flow
+            self.D_es = dict
+        else: 
+            print('This is UPR! Function not working!')
+    
+
 
     def tes_cal(self):
         '''
         construct large A D C S... matrix, use tes-lca framework
         do matrix calculation
         '''
-        self.S_matrix()
-        self.f_matrix()
-        Ft = self.Ft
-        S = self.supply_matrix
-        A = self.tech_matrix
-        D = self.intv_matrix
-        me = np.ones((S.shape[1], 1))
-        C = np.zeros((self.ProcNum, S.shape[1]))
-        I = np.eye(self.FlowNum)
-        O = np.zeros((self.ProcNum, self.FlowNum))
+        if self.TYPE == 'LCA':
+            self.S_matrix()
+            self.f_matrix()
+            self.separate_D_matrix()
+            Ft = self.Ft
+            S = self.supply_matrix
+            A = self.tech_matrix
+            D = self.intv_matrix
+            me = np.ones((S.shape[1], 1))
+            C = np.zeros((self.ProcNum, S.shape[1]))
+            I = np.eye(self.FlowNum)
+            O = np.zeros((self.ProcNum, self.FlowNum))
 
-        AD = np.vstack((A,D))
-        OI = np.vstack((O, -I))
-        FO = np.vstack((Ft, np.zeros((self.FlowNum, 1))))
-        CS = np.vstack((C, S))
-        LHS = np.hstack((AD, OI))
-        RHS = FO - CS @ me
+            AD = np.vstack((A,D))
+            OI = np.vstack((O, -I))
+            FO = np.vstack((Ft, np.zeros((self.FlowNum, 1))))
+            CS = np.vstack((C, S))
+            LHS = np.hstack((AD, OI))
+            RHS = FO - CS @ me # matrix multiplication
 
-        lu, piv = lu_factor(LHS)
-        res = lu_solve((lu, piv), RHS)
-        # res = inv(LHS) @ RHS
-        self.res = res
+            lu, piv = lu_factor(LHS)
+            res = lu_solve((lu, piv), RHS)
+            self.res = res
+            
+            return res
+        else:
+            print('This is UPR! Function not working!')
 
+
+
+    def vk_cal(self):
+        if self.TYPE == 'LCA':
+            lu, piv = lu_factor(self.tech_matrix)
+            m = lu_solve((lu, piv), self.Ft)
+            vk_dict = {}
+            for es in self.ESName:
+                S = np.c_[self.supply_es[es]]
+                D = self.D_es[es]
+                Dm = D @ m
+                Vk = (S - Dm) / Dm
+                Vk_total = (S.sum() - Dm.sum()) / Dm.sum()
+                vk_dict[es] = [Vk, Vk_total]
+            self.Vk = vk_dict
+        else:
+            print('This is UPR! Function not working!')
+
+
+
+    def get_location(self):
+        loc = self.Address.copy()
+        res = get_location(loc)
         return res
     
-    def barplot(self, ES):
+
+
+    def barplot(self, es='carbon sequestration', n=5):
         lu, piv = lu_factor(self.tech_matrix)
         m = lu_solve((lu, piv), self.Ft)
-        Dm = self.intv_matrix @ m
-        demand = Dm.T[0].tolist()
+        S_LOC = np.array(self.LOCALS[es]).sum()
+        S_ALLO = np.array(self.supply_es[es]).sum() - S_LOC
+        D = self.D_es[es]
+        Dm = D @ m
+        name = self.PNAME       
 
-        PName = []
-        allo_s = 0
-        local_s = 0
-        for p in self.processes:
-            sup = p.supply_disag
-            temp = sup[ES]['total'] - sup[ES]['local']
-            allo_s += temp
-            local_s += sup[ES]['local']
-            PName.append(p.name)
-    
+        df = pd.DataFrame(Dm, columns = ['Demand'])
+        df['Name'] = name
+        df = df.sort_values(by=['Demand'], ascending=False) 
 
-        supply = [0] * self.ProcNum
-        supply.append(allo_s); supply.append(local_s)
-        demand.append(0); demand.append(0)
-        PName.append('allocated s'); PName.append('local s')
-
-        data = {'Demand': demand, 'Supply': supply}
-        df = pd.DataFrame.from_dict(data, orient='index', columns=PName)
-
-        # df.plot.bar(stacked=True, rot=0, colormap='tab20c')
-        # pd.options.plotting.backend = 'plotly'
-        # fig = df.plot(kind='bar')
-        colors = px.colors.qualitative.T10
-        fig = px.bar(df, 
-            x = df.index,
-            y = [c for c in df.columns],
-            template = 'ggplot2',
-            color_discrete_sequence = colors)
-        return fig
-        # fig.show()
+        if self.ProcNum <= n:
+            newname = df['Name'].to_list()
+            newname.extend(['Allocated Supply', 'Local Supply'])
+            newdemand = df['Demand'].to_list().extend([0, 0])
+            supply = [0] * self.ProcNum 
+        else:
+            rest = df.iloc[n:]
+            keep = df.iloc[:n]
+            newname = keep['Name'].to_list()
+            newname.extend(['Others', 'Allocated Supply', 'Local Supply'])
+            newdemand = keep['Demand'].to_list()
+            newdemand.extend([rest.Demand.sum(), 0, 0])
+            supply = [0] * (n + 1) 
         
+        supply.extend([S_ALLO, S_LOC])
+        data = {'Demand': newdemand, 'Supply': supply}
+        dfdata = pd.DataFrame.from_dict(data, orient='index', columns=newname)
 
-       
+        colors = px.colors.qualitative.T10
+        fig = px.bar(dfdata, 
+                     x = dfdata.index, 
+                     y = [c for c in dfdata.columns], 
+                     template = 'ggplot2', 
+                     color_discrete_sequence = colors)
+        return fig
+        # This function is redundant because of using px.bar
+        # It will report issue for wide-form data 
+        # I guess it's because in one row, for some columns the number is not in the same formate: 
+        # 0.0 vs 1.213323 (raise issue)
+        # 0.000000 vs 1.213323 (run well)
+        # What i did is put all the values in a list (one row), then build the dictionary 
+        # and converted to dataframe. I guess, during this conversion, 
+        # panda function automatically force the data be in the same format
+
+
+
+    def coordinateplot(self, es='carbon sequestration'):
+        self.vk_cal()
+        Vk_proc = self.Vk[es][0] # Vk for each process
+        Vk_tot = self.Vk[es][1] # Vk for whole supply chain
+        Vk_loc = np.append(Vk_proc, Vk_tot)
+        svc = serviceshed[es] # world for carbon, watershed for water
+        Vk_svc = []
+        for p in self.processes:
+            svcname = p.all[es]['scales'][svc]
+            D = SP_info[svc][svcname]['demand'][es]
+            S = SP_info[svc][svcname]['total supply'][es]
+            vk = (S-D) / D
+            Vk_svc.append(vk)
+        Vk_svc.append(np.mean(Vk_svc))
+        name = self.PNAME
+        name.append('life cycle')
+        data = {'Vk loc': Vk_loc, 'Vk svc': Vk_svc, 'Process': name}
+        df = pd.DataFrame.from_dict(data)
+        
+        xax = 'Vk loc'
+        yax = 'Vk svc'
+        col = 'Process'
+        fig = quadrant_plot(df, xax, yax, col)
+        
+        return fig
+
+  
 
 if __name__ == '__main__':
 
-    xl_u = pd.ExcelFile('./user_input_data/input_OH.xlsx')
-    # xl_s = pd.ExcelFile('./user_input_data/input_template0.xlsx')
-    xl_s = pd.ExcelFile('./user_input_data/BD_LCA.xlsx')
+    # df_s1 = pd.read_csv('ES1_info.csv', index_col=0) # one scale: local+world
+    df_s1 = pd.read_csv('ES1_info1.csv', index_col=0) # two scale: local+state+world
+    df_s2 = pd.read_csv('ES2_info.csv', index_col=0)
+    dfupr = pd.read_csv('ES1_info_upr.csv', index_col=0) # unit processes
+    dfnh3 = pd.read_csv('ES_info_nh3.csv', index_col=0)
+    df_s2['Watershed'] = df_s2.Watershed.astype(str)
+    ls_upr = [dfupr]
+    ls_nh3 = [dfnh3]
+    ls_df1 = [df_s1]
+    ls_df2 = [df_s1, df_s2]
+    
 
-
-    ## pro_u = [p for p in pro_u.values()][0]
-    OH = dic_process(xl_u)
-    ohio = Process(OH)
-    ohio.cal_supply(SP_info)
-
-    dfA = pd.read_csv('./user_input_data/tech_matrix1.csv', index_col=0) # technology matrix
-    dfD = pd.read_csv('./user_input_data/intv_matrix1.csv', index_col=0) # intervention matrix
+    dfA = pd.read_csv('./user_input_data/tech_matrix1.csv', index_col=0) 
+    dfD1 = pd.read_csv('./user_input_data/intv_matrix1.csv', index_col=0) # single ES
+    dfD2 = pd.read_csv('./user_input_data/intv_matrix2.csv', index_col=0) # multiple ES
     wt = pd.read_csv('./user_input_data/weighting_vec.csv', index_col=0)
-    toy = dic_process(xl_s)
-    obj2 = LcaSystem(toy, dfA, dfD, wt)
+    
+    toy1 = format_process(ls_df1)
+    obj1 = LcaSystem(toy1, dfA, dfD1, wt)
+    obj1.add_process(SP_info)
+    
+    toy2 = format_process(ls_df2)
+    obj2 = LcaSystem(toy2, dfA, dfD2, wt)
     obj2.add_process(SP_info)
-    # obj1.S_matrix()
-    # obj1.f_matrix()
 
-    res = obj2.tes_cal()
-    obj2.barplot('carbon sequestration')
+    toy3 = format_process(ls_upr)
+    obj3 = LcaSystem(PDic=toy3)
+    obj3.add_process(SP_info)
 
+    SP_nh3 = SP_info.copy()
+    SP_nh3['World']['World']['public supply']['carbon sequestration'] = 1532777777.8
+    toy_nh3 = format_process(ls_nh3)
+    obj_nh3 = LcaSystem(PDic=toy_nh3)
+    obj_nh3.add_process(SP_nh3)
+
+    res1 = obj1.tes_cal()
+    res2 = obj2.tes_cal()
+
+    obj1.vk_cal()
+    obj2.vk_cal()
+  
+
+    # resloc = obj1.get_location()
 
     print('done!')
+
+
+
+
 
 
 

@@ -1,0 +1,5 @@
+area: km2
+emission: ton/yr
+population: nan
+GDP: million $/yr (2016)
+GVA: million $/yr (2017)
