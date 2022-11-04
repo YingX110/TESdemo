@@ -1,8 +1,8 @@
 from distutils.command.config import dump_file
 import base64
 import streamlit as st
-from build_data_v2 import format_process
-from main2 import *
+from build_data import format_process
+from main import *
 from plotmap import mapplot
 
 
@@ -80,21 +80,7 @@ for upf in uploaded_files:
     elif 'weight' in str(upf.name):
         wt = pd.read_csv(upf, index_col=0)
         mtx_num -= 1
-    # else:
-    #         st.write('Rename files❗')
-# if mtx_num > 0:
-#     st.write('⚠️ Missing File ⚠️')
 
-# st.text("")
-# st.text("")
-# col1,col2 = st.columns([5,5])
-
-# with col1:
-#     Type = st.selectbox("Type of the system", 
-#     ("LCA", "Unit process", "Goe-unit process"), disabled=False)
-# with col2:
-#     ES_name = st.selectbox("Select the name of ecosystem services 🌱", 
-#     ("carbon sequestration", "water provision (in processing)"), disabled=False)
 
 st.text("")
 st.text("")

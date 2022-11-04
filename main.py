@@ -8,8 +8,7 @@ from get_lonlat import get_location
 from coorplot import quadrant_plot
 
 
-# f = open('SP_info5.json')
-f = open('SP_info_wGVA.json')
+f = open('SP_info.json')
 SP_info = json.load(f)
 serviceshed = SP_info.pop('Serviceshed Boundary') 
 
@@ -344,49 +343,19 @@ class LcaSystem:
 
 if __name__ == '__main__':
 
-    # df_s1 = pd.read_csv('ES1_info.csv', index_col=0) # one scale: local+world
-    df_s1 = pd.read_csv('ES1_info1.csv', index_col=0) # two scale: local+state+world
-    df_s2 = pd.read_csv('ES2_info.csv', index_col=0)
-    dfupr = pd.read_csv('ES1_info_upr.csv', index_col=0) # unit processes
-    dfnh3 = pd.read_csv('ES_info_nh3.csv', index_col=0)
-    df_s2['Watershed'] = df_s2.Watershed.astype(str)
-    ls_upr = [dfupr]
-    ls_nh3 = [dfnh3]
-    ls_df1 = [df_s1]
-    ls_df2 = [df_s1, df_s2]
+    df = pd.read_csv('./user_input_data/process_BD.csv', index_col=0) 
+    ls_df = [df]
     
-
-    dfA = pd.read_csv('./user_input_data/tech_matrix1.csv', index_col=0) 
-    dfD1 = pd.read_csv('./user_input_data/intv_matrix1.csv', index_col=0) # single ES
-    dfD2 = pd.read_csv('./user_input_data/intv_matrix2.csv', index_col=0) # multiple ES
+    dfA = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0) 
+    dfD = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0) 
     wt = pd.read_csv('./user_input_data/weighting_vec.csv', index_col=0)
     
-    toy1 = format_process(ls_df1)
-    obj1 = LcaSystem(toy1, dfA, dfD1, wt)
-    obj1.add_process(SP_info)
-    
-    toy2 = format_process(ls_df2)
-    obj2 = LcaSystem(toy2, dfA, dfD2, wt)
-    obj2.add_process(SP_info)
+    toy = format_process(ls_df)
+    obj = LcaSystem(toy, dfA, dfD, wt)
+    obj.add_process(SP_info)
 
-    toy3 = format_process(ls_upr)
-    obj3 = LcaSystem(PDic=toy3)
-    obj3.add_process(SP_info)
-
-    SP_nh3 = SP_info.copy()
-    SP_nh3['World']['World']['public supply']['carbon sequestration'] = 1532777777.8
-    toy_nh3 = format_process(ls_nh3)
-    obj_nh3 = LcaSystem(PDic=toy_nh3)
-    obj_nh3.add_process(SP_nh3)
-
-    res1 = obj1.tes_cal()
-    res2 = obj2.tes_cal()
-
-    obj1.vk_cal()
-    obj2.vk_cal()
-  
-
-    # resloc = obj1.get_location()
+    res = obj.tes_cal()
+    obj.vk_cal()
 
     print('done!')
 

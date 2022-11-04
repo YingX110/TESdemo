@@ -4,7 +4,6 @@ import urllib
 
 api_key = 'AIzaSyBvLbmMG9h3gLt66cdP-T1Sda9TUMGmgyY'
 
-# df = pd.read_csv('locations.csv')
 def get_location(df):
     df = df.dropna()
 
@@ -23,7 +22,7 @@ def get_location(df):
 
 
 if __name__ == '__main__':
-    from main2 import *
+    from main import *
     df_s1 = pd.read_csv('ES1_info.csv', index_col=0)
     ls_df1 = [df_s1]
  
