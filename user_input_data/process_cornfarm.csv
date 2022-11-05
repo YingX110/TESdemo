@@ -1,2 +1,2 @@
 ,name,location,type,final demand,SP name,SP amount,ES,local demand,local supply,County,State,Country,World,Watershed
-process1,corn farm ,"Hamilton county, Ohio",Unit process,,demand,5.47E+00,carbon sequestration,,1.46E+01,,Ohio,United States,World,
+process1,corn farm ,"Hamilton county, Ohio",Unit process,,demand,5.47E+00,carbon sequestration,5.47E+00,1.46E+01,,Ohio,United States,World,

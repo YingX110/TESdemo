@@ -1,0 +1,6 @@
+,name,location,type,final demand,SP name,SP amount,ES,local demand,local supply,County,State,Country,World,Watershed
+process1,State,Michigan,Geo-unit process,,population,,carbon sequestration,,,,Ohio,United States,World,
+process2,State,Ohio,Geo-unit process,,population,,carbon sequestration,,,,Ohio,United States,World,
+process3,State,Illinois,Geo-unit process,,population,,carbon sequestration,,,,Ohio,United States,World,
+process4,State,Indiana,Geo-unit process,,population,,carbon sequestration,,,,Ohio,United States,World,
+process5,State,Wisconsin,Geo-unit process,,population,,carbon sequestration,,,,Ohio,United States,World,

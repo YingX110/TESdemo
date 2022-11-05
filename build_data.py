@@ -22,7 +22,7 @@ def format_process(ls_df):
             location = df[['name', 'location']].reset_index().drop(['index'], axis=1)
             type = df.type.unique()[0]
             flag += 1
-        dictes = df[['SP name', 'SP amount', 'local demand', 'local supply']].to_dict('index')
+        dictes = df[['SP name', 'SP amount', 'local demand', 'local supply']].to_dict('index') # keep local demand for unit process
         dictscale = df[geo_unit].dropna(axis='columns', how='all').to_dict('index')
         localS = df['local supply'].to_list()
         
@@ -48,9 +48,10 @@ def format_process(ls_df):
     
 
 if __name__ == '__main__':
-    df1 = pd.read_csv('ES1_info1.csv', index_col=0)
-    df2 = pd.read_csv('ES2_info.csv', index_col=0)
-    ls_df = [df1, df2]
+   
+    df1 = pd.read_csv('./user_input_data/process_BD.csv', index_col=0)
+    # df2 = pd.read_csv('ES2_info.csv', index_col=0)
+    ls_df = [df1]
     res = format_process(ls_df)
     print('dead already')
 

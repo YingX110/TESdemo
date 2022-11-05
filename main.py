@@ -281,7 +281,8 @@ class LcaSystem:
         if self.ProcNum <= n:
             newname = df['Name'].to_list()
             newname.extend(['Allocated Supply', 'Local Supply'])
-            newdemand = df['Demand'].to_list().extend([0, 0])
+            newdemand = df['Demand'].to_list()
+            newdemand.extend([0, 0])
             supply = [0] * self.ProcNum 
         else:
             rest = df.iloc[n:]
@@ -347,9 +348,9 @@ if __name__ == '__main__':
     df = pd.read_csv('./user_input_data/process_BD.csv', index_col=0) 
     ls_df = [df]
     
-    dfA = pd.read_csv('./user_input_data/tech_matrix.csv', index_col=0) 
-    dfD = pd.read_csv('./user_input_data/intv_matrix.csv', index_col=0) 
-    wt = pd.read_csv('./user_input_data/weighting_vec.csv', index_col=0)
+    dfA = pd.read_csv('./user_input_data/tech_matrix_BD.csv', index_col=0) 
+    dfD = pd.read_csv('./user_input_data/intv_matrix_BD.csv', index_col=0) 
+    wt = pd.read_csv('./user_input_data/weighting_vec_BD.csv', index_col=0)
     
     toy = format_process(ls_df)
     obj = LcaSystem(toy, dfA, dfD, wt)
@@ -364,7 +365,7 @@ if __name__ == '__main__':
     obj_upr = LcaSystem(PDic=toyfarm, AES='PB')
     obj_upr.add_process(SP_info)
     p0 = obj_upr.processes[0]
-    p0.supply_disag
+    upr_supply = p0.supply_disag
 
     print('done!')
 
