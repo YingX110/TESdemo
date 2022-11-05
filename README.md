@@ -19,7 +19,17 @@ An absolute environmental sustainability assessment framework based on ecosystem
 
 ![farm](https://github.com/YingX110/TESdemo/raw/interface/images/cornfarm.png)
 
-### Geo-unit process - States in Greate Lakes Region 🌎
+### Geo-unit process - States in Great Lakes Region 🌎
+* **Ecosystem service**: carbon sequestration service
+* **Biophysical model/tool**: iTree-Canopy
+* **Geospatial scale of ES**: local (state), country, global 
+* **Compare different sharing principles**:
+    * Demand
+    * Population
+    * GDP
+    * Inverse of GDP
+    * Area
+
 
 
 ### LCA - Soybean Biodiesel Production ⛽
@@ -27,3 +37,9 @@ An absolute environmental sustainability assessment framework based on ecosystem
 
 
 ## ✏️ Exercises
+### 1. For the corn farm exanple, try different locations and compare the result
+### 2. Quantify the Absolute Environmental Sustainability for PET-Bottle Production 🍼
+* Functional unit: 2000 million bottles
+* Flow diagram and system boundary is shown as below
+
+![bottle](https://github.com/YingX110/TESdemo/raw/interface/images/petbottle.svg)
