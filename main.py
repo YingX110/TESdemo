@@ -14,7 +14,7 @@ serviceshed = SP_info.pop('Serviceshed Boundary')
 
 
 class Process:
-    def __init__(self, info):
+    def __init__(self, info, AES = 'TES'):
         self.name = info['name'] # this is used for geo-unit process: 'county', 'state', 'country'...
         self.type = info['type'] # LCA or geo unit
         self.location = info['location'] # this is used for geo-unit process: fips for county, state name for states
@@ -23,16 +23,10 @@ class Process:
         self.supply_disag = {}
         self.supply = {}
         self.all = info
+        self.AES = AES
 
 
     def cal_supply(self, SP_info):
-        '''
-        !! Todo:
-        robust requirement: should consider none -> add a if condition
-
-        ES: [C sequestration, Water provision...]
-        sp_name: demand/population/area/gdp/inverse gdp
-        '''
         
         for es in self.ESname:
             ESinfo = self.all[es] # for Ecosystem service X
@@ -66,7 +60,12 @@ class Process:
                 sp_amount_L: sharing principle (emission/population/area...) at smaller scale
                 sp_amount_H: sharing principle (emission/population/area...) at larger scale
                 '''
-                S = SP_info[k][v]['public supply'][es]
+                if self.AES == 'PB':
+                    S = SP_info[k][v]['total supply'][es]
+                    local_S = 0
+                else:
+                    S = SP_info[k][v]['public supply'][es]
+
                 if SP_meth == 'demand': 
                     sp_amount_H = SP_info[k][v][SP_meth][es]
                 else:
@@ -81,7 +80,7 @@ class Process:
 
 
 class LcaSystem:
-    def __init__(self, PDic={}, dfA=[], dfD=[], wt=[]):
+    def __init__(self, PDic={}, dfA=[], dfD=[], wt=[], AES='TES'):
         ''' There is a 1 v 1 relationshipt between elem flow and ES, thus flow name is replaced with ES name in intv matrix '''
         try:
             self.PDic = PDic
@@ -91,6 +90,7 @@ class LcaSystem:
             self.TYPE = self.PDic.pop('TYPE') 
             self.PNAME = self.PDic.pop('PROC NAME')
             self.LOCALS = self.PDic.pop('LOCAL S')
+            self.AES = AES
             self.processes = [] # for upr, it runs until this line
             self.tech_matrix = dfA.values
             self.intv_matrix = dfD.values
@@ -106,7 +106,8 @@ class LcaSystem:
 
     def add_process(self, SP_info):
         for p in self.PDic.values():
-            process = Process(p)
+            AES = self.AES
+            process = Process(p, AES)
             process.cal_supply(SP_info)
             self.processes.append(process)
             if len(self.processes) == 1: # number of ES should be the same for all processes, so only record once
@@ -356,6 +357,14 @@ if __name__ == '__main__':
 
     res = obj.tes_cal()
     obj.vk_cal()
+
+    dfupr = pd.read_csv('./user_input_data/process_cornfarm_PB.csv', index_col=0) 
+    ls_upr = [dfupr]
+    toyfarm = format_process(ls_upr)
+    obj_upr = LcaSystem(PDic=toyfarm, AES='PB')
+    obj_upr.add_process(SP_info)
+    p0 = obj_upr.processes[0]
+    p0.supply_disag
 
     print('done!')
 
