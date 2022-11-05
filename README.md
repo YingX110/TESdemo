@@ -17,6 +17,7 @@ An absolute environmental sustainability assessment framework based on ecosystem
 ## 👀 Examples
 ### Unit process - Corn Farm 🌽
 
+![Logo](https://github.com/YingX110/TESdemo/raw/interface/images/cornfarm.png)
 
 ### Geo-unit process - States in Greate Lakes Region 🌎
 ### 
