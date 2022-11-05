@@ -40,10 +40,9 @@ An absolute environmental sustainability assessment framework based on ecosystem
 ### 1. For the corn farm exanple, try different locations and compare the result
 ### 2. Quantify the Absolute Environmental Sustainability for PET-Bottle Production 🍼
 * Functional unit: 2000 million bottles
-* Technology matrix: $ A = {\left\lbrack \matrix{1 & 0 & 0 & -1 \cr 0 & 1 & 0 & -60 \cr 0 & 0 & 1 & -1 \cr 0 & 0 & 0 & 1} \right\rbrack} $
-* Inventory matrix: $ D = {\left\lbrack \matrix{2.62E-6 & 0 & 0 & 0 \cr 0 & 2.26E-6 & 0 & 0 \cr 0 & 0 & 2.22E-6 & 0 \cr 0 & 0 & 0 & 1E-5} \right\rbrack} $
+* Technology matrix: $A = \begin{bmatrix} 1 & 0 & 0 & -4\\0 & 1 & 0 & -60 \\0 & 0 & 1 & -1 \\0 & 0 & 0 & 1 \end{bmatrix}$
+* Inventory matrix: $D = \begin{bmatrix} 2.62e-6 & 0 & 0 & 0\\0 & 2.26e-6 & 0 & 0 \\0 & 0 & 2.22e-6 \\0 & 0 & 0 & 1e-5 \end{bmatrix}$
 * Weighting vector: $ wt = [1, 1, 1, 1] $
 * Flow diagram and system boundary is shown as belows
 
 ![bottle](https://github.com/YingX110/TESdemo/raw/interface/images/petbottle.svg)
-
