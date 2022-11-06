@@ -33,12 +33,17 @@ class Process:
             scales = ESinfo['scales']
             SP_meth = ESinfo['SP name']
             self.supply_disag[es] = {}
+            self.EI = {} # only geo-unit and unit process need this, for "lca", it will be calculated through matrix
+
+            if self.type == 'Unit process':
+                self.EI[es] = ESinfo['local demand']
 
             if self.type == 'Geo-unit process':
                 '''
                 If a geo-unit (county/state/country...) be considered as 
                 a unit process, local info are not required from users
                 '''
+                self.EI[es] = SP_info[self.name][self.location]['demand'][es]
                 local_S = SP_info[self.name][self.location]['total supply'][es]
                 if SP_meth == 'demand':
                     sp_amount_L = SP_info[self.name][self.location][SP_meth][es]
@@ -86,6 +91,7 @@ class Process:
                     self.supply_disag[es][k] = frac * S
                 self.supply[es] = allo_S + local_S
                 # self.supply_disag[es]['total'] = allo_S + local_S
+    
 
 
 
@@ -375,7 +381,15 @@ if __name__ == '__main__':
     obj_upr = LcaSystem(PDic=toyfarm, AES='PB')
     obj_upr.add_process(SP_info)
     p0 = obj_upr.processes[0]
-    upr_supply = p0.supply_disag
+    upr_supply = p0.supply
+
+    dfupr1 = pd.read_csv('./user_input_data/process_cornfarm.csv', index_col=0) 
+    ls_upr1 = [dfupr1]
+    toyfarm1 = format_process(ls_upr1)
+    obj_upr1 = LcaSystem(PDic=toyfarm1, AES='TES')
+    obj_upr1.add_process(SP_info)
+    pp0 = obj_upr1.processes[0]
+    upr_supply1 = pp0.supply
 
     print('done!')
 

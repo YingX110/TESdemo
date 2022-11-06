@@ -60,8 +60,8 @@ col1,col2 = st.columns([5,5])
 
 with col1:
     Type = st.selectbox("Type of the system", 
-    ("LCA", "Unit process", "Goe-unit process"), disabled=False)
-    AES = st.selectbox("Framework for assessment", 
+    ("LCA", "Unit process", "Geo-unit process"), disabled=False)
+    AES_fw = st.selectbox("Framework for assessment", 
     ("TES", "PB"), disabled=False)
 with col2:
     ES_name = st.selectbox("Select the name of ecosystem services 🌱", 
@@ -93,7 +93,7 @@ with col2:
         )
     
 with col1:
-    uploaded_files = st.file_uploader("", accept_multiple_files=True)
+    uploaded_files = st.file_uploader("", accept_multiple_files=True) # this is a list
 mtx_num = 3 # A, D and Wt
 process = []
 for upf in uploaded_files:
@@ -111,6 +111,40 @@ for upf in uploaded_files:
         mtx_num -= 1
 
 
+########################################
+if process != []:
+    toy = format_process(process)
+    # for v in toy.values():
+    #     v[ES_name]['SP name'] = SP_name
+
+    # obj = LcaSystem(toy, dfA, dfD, wt, AES)
+    # obj.add_process(SP_info)
+
+    if Type != 'LCA':
+        obj = LcaSystem(PDic=toy, AES=AES_fw)
+        obj.add_process(SP_info)
+        ls_vk = []
+        ls_s = []
+        ls_d = []
+        ls_name = []
+        for p in obj.processes:
+            sup = p.supply[ES_name]
+            dmd = p.EI[ES_name]
+            Vk = (sup - dmd) / dmd
+            ls_s.append(sup)
+            ls_d.append(dmd)
+            ls_vk.append(Vk)
+            if Type == "Geo-unit process":
+                ls_name.append(p.location)
+            else:
+                ls_name.append(p.name)
+        data_up = pd.DataFrame({'Supply': ls_s, 'Demand':ls_d, 'Process': ls_name})
+    else:
+        obj = LcaSystem(toy, dfA, dfD, wt, AES_fw)
+        obj.add_process(SP_info)
+        res = obj.tes_cal()
+        obj.vk_cal()
+    
 
 st.text("")
 st.text("")
@@ -123,15 +157,29 @@ with col1:
     unsafe_allow_html=True
     )
 
-with col2:
-    st.text("")
-    if st.button('Click 🖱️'):
-        toy = format_process(process)
-        obj = LcaSystem(toy, dfA, dfD, wt, AES)
-        obj.add_process(SP_info)
-        res = obj.tes_cal()
-        obj.vk_cal()
 
+st.text("")
+
+def changerange(lb, ub, pct):
+    up_sign = ub / np.absolute(ub)
+    lb_sign = lb / np.absolute(lb)
+    newlb = lb * (1 - lb_sign * pct)
+    newub = ub * (1 + up_sign * pct)
+    return [newlb, newub]
+
+
+if st.button('Click 🖱️'):
+    if Type != 'LCA':
+        barfig_up = px.bar(data_up, x="Process", y=['Supply', 'Demand'], barmode='group')
+        barfig_up.update_layout(
+            xaxis_title='System name',
+            yaxis_title='ton CO<sub>2</sub>/FU',
+        )
+        ls_tmp = ls_s + ls_d
+        # newrange = changerange(min(ls_tmp), max(ls_tmp), 0.05)
+        # barfig_up.update(layout_yaxis_range = newrange)
+        st.plotly_chart(barfig_up, use_container_width=True)
+    else:
         barfig = obj.barplot()
         barfig.update_layout(
             title="Environmental Impact & Ecological Threshold",
@@ -146,3 +194,7 @@ with col2:
         st.plotly_chart(barfig, use_container_width=True)
         st.text("")
         st.plotly_chart(coordfig, use_container_width=True)
+
+
+
+
