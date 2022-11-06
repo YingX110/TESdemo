@@ -4,6 +4,7 @@ import streamlit as st
 from build_data import format_process
 from main import *
 from plotmap import mapplot
+from PIL import Image
 
 
 st.set_page_config(layout="wide")
@@ -37,6 +38,18 @@ set_bg_hack('images/nature.jpg')
 
 # st.markdown("<h1 class='calh1'> Natural Solution: TES-LCA🌲</h1>", unsafe_allow_html=True)
 st.text("")
+
+col1,col2 = st.columns([3,7])
+# s1 = Image.open('petbottle.svg')
+# with col1:
+#     st.image(s1)
+with col1:
+    st.image(
+        "https://s3-us-west-2.amazonaws.com/uw-s3-cdn/wp-content/uploads/sites/6/2017/11/04133712/waterfall.jpg",
+        width=400, # Manually Adjust the width of the image as per requirement
+    )
+
+
 
 col1,col2 = st.columns([5,5])
 
