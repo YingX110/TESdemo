@@ -39,29 +39,41 @@ set_bg_hack('images/nature.jpg')
 # st.markdown("<h1 class='calh1'> Natural Solution: TES-LCA🌲</h1>", unsafe_allow_html=True)
 st.text("")
 
-col1,col2 = st.columns([3,7])
-# s1 = Image.open('petbottle.svg')
+# col1,col2 = st.columns([3,7])
+
 # with col1:
-#     st.image(s1)
-with col1:
-    st.image(
-        "https://s3-us-west-2.amazonaws.com/uw-s3-cdn/wp-content/uploads/sites/6/2017/11/04133712/waterfall.jpg",
-        width=400, # Manually Adjust the width of the image as per requirement
-    )
+#     st.image(
+#         "https://github.com/YingX110/TESdemo/raw/interface/images/one.svg",
+#         width=60,
+#     )
+# with col2:
+#     st.markdown("<h3 class='calh3'>STEP 1: DEFINE</h3>", unsafe_allow_html=True)
+#     st.markdown("<p class='step1'>Define the system boundary, functional unit and type of the system</p>", unsafe_allow_html=True)
 
+st.markdown(
+    '<div><img src="https://github.com/YingX110/TESdemo/raw/interface/images/one.svg" style="vertical-align: middle;" width="70px"/><span class="stp1" style="vertical-align: middle;"> &ensp; STEP 1: DEFINE VARIABLES</span></div>',
+    unsafe_allow_html=True
+)
 
-
+st.markdown("")
 col1,col2 = st.columns([5,5])
 
 with col1:
     Type = st.selectbox("Type of the system", 
     ("LCA", "Unit process", "Goe-unit process"), disabled=False)
+    AES = st.selectbox("Framework for assessment", 
+    ("TES", "PB"), disabled=False)
 with col2:
     ES_name = st.selectbox("Select the name of ecosystem services 🌱", 
     ("carbon sequestration", "water provision (in processing)"), disabled=False)
+    SP_name = st.selectbox("Select the sharing principle", 
+    ("demand", "gdp", "inverse of gdp", "area", "population"), disabled=False)
 
 st.text("")
 st.text("")
+
+
+
 
 col1,col2 = st.columns([6,4])
 
