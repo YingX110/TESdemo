@@ -51,7 +51,7 @@ st.text("")
 #     st.markdown("<p class='step1'>Define the system boundary, functional unit and type of the system</p>", unsafe_allow_html=True)
 
 st.markdown(
-    '<div><img src="https://github.com/YingX110/TESdemo/raw/interface/images/one.svg" style="vertical-align: middle;" width="70px"/><span class="stp1" style="vertical-align: middle;"> &ensp; STEP 1: DEFINE VARIABLES</span></div>',
+    '<div><img src="https://github.com/YingX110/TESdemo/raw/interface/images/ONE.png" style="vertical-align: middle;" width="70px"/><span class="stp1" style="vertical-align: middle;"> &ensp; STEP 1: DEFINE VARIABLES</span></div>',
     unsafe_allow_html=True
 )
 
@@ -72,7 +72,10 @@ with col2:
 st.text("")
 st.text("")
 
-
+st.markdown(
+    '<div><img src="https://github.com/YingX110/TESdemo/raw/interface/images/TWO.png" style="vertical-align: middle;" width="70px"/><span class="stp1" style="vertical-align: middle;"> &ensp; STEP 2: UPLOAD SPREADSHEET</span></div>',
+    unsafe_allow_html=True
+)
 
 
 col1,col2 = st.columns([6,4])
@@ -108,27 +111,38 @@ for upf in uploaded_files:
         mtx_num -= 1
 
 
-st.text("")
-st.text("")
-st.text("")
-if st.button('Calculate 🖱️'):
-    toy = format_process(process)
-    obj = LcaSystem(toy, dfA, dfD, wt)
-    obj.add_process(SP_info)
-    res = obj.tes_cal()
-    obj.vk_cal()
 
-    barfig = obj.barplot()
-    barfig.update_layout(
-        title="Environmental Impact & Ecological Threshold",
-        xaxis_title='',
-        yaxis_title='ton CO<sub>2</sub>/FU',
-        legend_title="Process"
+st.text("")
+st.text("")
+
+col1, col2, col3 = st.columns([5, 2, 3])
+
+with col1:
+    st.markdown(
+    '<div><img src="https://github.com/YingX110/TESdemo/raw/interface/images/THREE.png" style="vertical-align: middle;" width="70px"/><span class="stp1" style="vertical-align: middle;"> &ensp; STEP 3: CALCULATE 👉</span></div>',
+    unsafe_allow_html=True
     )
-    barfig.update_traces(width=0.5)
-    
-    coordfig = obj.coordinateplot(ES_name)
 
-    st.plotly_chart(barfig, use_container_width=True)
+with col2:
     st.text("")
-    st.plotly_chart(coordfig, use_container_width=True)
+    if st.button('Click 🖱️'):
+        toy = format_process(process)
+        obj = LcaSystem(toy, dfA, dfD, wt, AES)
+        obj.add_process(SP_info)
+        res = obj.tes_cal()
+        obj.vk_cal()
+
+        barfig = obj.barplot()
+        barfig.update_layout(
+            title="Environmental Impact & Ecological Threshold",
+            xaxis_title='',
+            yaxis_title='ton CO<sub>2</sub>/FU',
+            legend_title="Process"
+        )
+        barfig.update_traces(width=0.5)
+        
+        coordfig = obj.coordinateplot(ES_name)
+
+        st.plotly_chart(barfig, use_container_width=True)
+        st.text("")
+        st.plotly_chart(coordfig, use_container_width=True)

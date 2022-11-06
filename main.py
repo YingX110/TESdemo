@@ -52,30 +52,40 @@ class Process:
             allo_S = 0
             frac = 1
 
-            for k, v in scales.items(): 
-                '''
-                k: general scale name: County, State, Watershed...
-                v: specific location name: Ohio, United States...
-                S: supply at higher scales except local scale
-                sp_amount_L: sharing principle (emission/population/area...) at smaller scale
-                sp_amount_H: sharing principle (emission/population/area...) at larger scale
-                '''
-                if self.AES == 'PB':
-                    S = SP_info[k][v]['total supply'][es]
-                    local_S = 0
+            if self.AES == 'PB':
+                S = SP_info['World']['World']['total supply'][es]
+                if SP_meth == 'demand': 
+                    sp_amount_H = SP_info['World']['World'][SP_meth][es]
                 else:
+                    sp_amount_H = SP_info['World']['World'][SP_meth]
+                allo_S = sp_amount_L / sp_amount_H * S
+                self.supply[es] = allo_S
+            else:
+                for k, v in scales.items(): 
+                    '''
+                    k: general scale name: County, State, Watershed...
+                    v: specific location name: Ohio, United States...
+                    S: supply at higher scales except local scale
+                    sp_amount_L: sharing principle (emission/population/area...) at smaller scale
+                    sp_amount_H: sharing principle (emission/population/area...) at larger scale
+                    '''
+                    # if self.AES == 'PB':
+                    #     S = SP_info[k][v]['total supply'][es]
+                    #     local_S = 0
+                    # else:
+                    #     S = SP_info[k][v]['public supply'][es]
                     S = SP_info[k][v]['public supply'][es]
 
-                if SP_meth == 'demand': 
-                    sp_amount_H = SP_info[k][v][SP_meth][es]
-                else:
-                    sp_amount_H = SP_info[k][v][SP_meth]
-                frac = frac * (sp_amount_L / sp_amount_H)
-                allo_S += frac * S
-                sp_amount_L = sp_amount_H
-                self.supply_disag[es][k] = frac * S
-            self.supply[es] = allo_S + local_S
-            # self.supply_disag[es]['total'] = allo_S + local_S
+                    if SP_meth == 'demand': 
+                        sp_amount_H = SP_info[k][v][SP_meth][es]
+                    else:
+                        sp_amount_H = SP_info[k][v][SP_meth]
+                    frac = frac * (sp_amount_L / sp_amount_H)
+                    allo_S += frac * S
+                    sp_amount_L = sp_amount_H
+                    self.supply_disag[es][k] = frac * S
+                self.supply[es] = allo_S + local_S
+                # self.supply_disag[es]['total'] = allo_S + local_S
 
 
 
