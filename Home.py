@@ -48,6 +48,4 @@ with col2:
     st.text('')
     st.text('')
     st.text('')
-    st.text('')
-    st.text('')
     st.markdown('<a href="https://cbe.osu.edu/bakshi-sustainable-engineering-research-group" target="_blank" rel="noopener noreferrer" class="btn">Visit Us To Know More</a>', unsafe_allow_html=True)
