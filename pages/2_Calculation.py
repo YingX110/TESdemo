@@ -7,7 +7,8 @@ from plotmap import mapplot
 from PIL import Image
 
 
-st.set_page_config(layout="wide")
+
+# st.set_page_config(layout="wide")
 
 with open("style.css") as f:
     st.markdown('<style>{}</style>'.format(f.read()), unsafe_allow_html=True)
@@ -197,4 +198,17 @@ if st.button('Click 🖱️'):
 
 
 
-
+col1, col2 = st.columns([7,3])
+with col2:
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.text('')
+    st.markdown(
+    '<div><span style="vertical-align: middle;"> Founded by &ensp;</span><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/NSF_logo.png" style="vertical-align: middle;" width="60px"/></div>',
+    unsafe_allow_html=True
+    )
