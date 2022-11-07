@@ -1,5 +1,5 @@
 ,name,location,type,final demand,SP name,SP amount,ES,local demand,local supply,County,State,Country,World,Watershed
-process1,HDPE production,Texas,LCA,0,demand,2.09E+04,carbon sequestration,2.09E+04,6.00E+02,,Texas,,World,
-process2,PET granulate production,New Jersey,LCA,0,demand,2.71E+05,carbon sequestration,2.71E+05,5.00E+03,,New Jersey,,World,
-process3,PP production,Ohio,LCA,0,demand,4.44E+03,carbon sequestration,4.44E+03,4.01E+03,,Ohio,,World,
-process4,PET bottle production,Illinois,LCA,2.00E+09,demand,2.00E+04,carbon sequestration,2.00E+04,1.80E+03,,Illinois,,World,
+process1,HDPE production,Texas,LCA,0,demand,20900,carbon sequestration,20900,600,,Texas,United States,World,
+process2,PET granulate production,New Jersey,LCA,0,demand,271000,carbon sequestration,271000,5000,,New Jersey,United States,World,
+process3,PP production,Ohio,LCA,0,demand,4440,carbon sequestration,4440,4010,,Ohio,United States,World,
+process4,PET bottle production,Illinois,LCA,2000000000,demand,20000,carbon sequestration,20000,1800,,Illinois,United States,World,
