@@ -72,7 +72,7 @@ def mapplot(mapdf, procloc, SPM, SCALE):
 if __name__ == '__main__':
     
     SPM = "demand" 
-    SCALE = "World"
+    SCALE = "Country, World"
     mapdf = pd.read_csv('mapdata1.csv')
     procloc = pd.read_csv('latlng.csv')
     mapplot(mapdf, procloc, SPM, SCALE)
