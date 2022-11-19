@@ -391,6 +391,14 @@ if __name__ == '__main__':
     pp0 = obj_upr1.processes[0]
     upr_supply1 = pp0.supply
 
+    dfupr2 = pd.read_csv('./user_input_data/process_5states.csv', index_col=0) 
+    ls_upr2 = [dfupr2]
+    toyfarm2 = format_process(ls_upr2)
+    obj_upr2 = LcaSystem(PDic=toyfarm2, AES='TES')
+    obj_upr2.add_process(SP_info)
+    # pp1 = obj_upr1.processes[0]
+    # upr_supply1 = pp0.supply
+
     print('done!')
 
 
