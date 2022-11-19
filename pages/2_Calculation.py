@@ -209,6 +209,6 @@ with col2:
     st.text('')
     st.text('')
     st.markdown(
-    '<div><span style="vertical-align: middle;"> Founded by &ensp;</span><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/NSF_logo.png" style="vertical-align: middle;" width="60px"/></div>',
+    '<div><span style="vertical-align: middle;"> Funded by &ensp;</span><img src="https://upload.wikimedia.org/wikipedia/commons/7/7e/NSF_logo.png" style="vertical-align: middle;" width="60px"/></div>',
     unsafe_allow_html=True
     )
