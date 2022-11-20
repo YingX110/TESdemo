@@ -357,6 +357,20 @@ class LcaSystem:
         
         return fig
 
+    def gen_result(self, ES, path):
+        '''
+        Generate the result file
+        Contain: EI, ecological threshold, Vk
+        '''
+        # res = {}
+        # for p in obj.processes:
+        #     name = p.name
+        #     res[name] = p.supply[ES]
+        # df = pd.DataFrame([res])
+        # df = df.T
+        # df.to_csv(path, encoding='utf-8', index=True)
+        # return df
+        pass
   
 
 if __name__ == '__main__':
