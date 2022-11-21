@@ -8,7 +8,8 @@ from get_lonlat import get_location
 from coorplot import quadrant_plot
 
 
-f = open('SP_info.json')
+f = open('SP_info_1121.json')
+# f = open('SP_info.json')
 SP_info = json.load(f)
 serviceshed = SP_info.pop('Serviceshed Boundary') 
 
@@ -357,6 +358,7 @@ class LcaSystem:
         
         return fig
 
+
     def gen_result(self, ES, path):
         '''
         Generate the result file
@@ -412,6 +414,18 @@ if __name__ == '__main__':
     obj_upr2.add_process(SP_info)
     # pp1 = obj_upr1.processes[0]
     # upr_supply1 = pp0.supply
+
+    county_2010 = pd.read_csv('./user_input_data/county_2010.csv', index_col=0) 
+    ls10 = [county_2010]
+    toy10 = format_process(ls10)
+    obj10 = LcaSystem(PDic=toy10, AES='TES')
+    obj10.add_process(SP_info)
+
+    county_2017 = pd.read_csv('./user_input_data/county_2017.csv', index_col=0) 
+    ls17 = [county_2017]
+    toy17 = format_process(ls17)
+    obj17 = LcaSystem(PDic=toy17, AES='TES')
+    obj17.add_process(SP_info)
 
     print('done!')
 
