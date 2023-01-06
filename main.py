@@ -8,7 +8,7 @@ from get_lonlat import get_location
 from coorplot import quadrant_plot
 
 
-f = open('SP_info_1121.json')
+f = open('SP_info_1128.json')
 # f = open('SP_info.json')
 SP_info = json.load(f)
 serviceshed = SP_info.pop('Serviceshed Boundary') 
