@@ -65,14 +65,14 @@ def mapplot(mapdf, procloc, SPM, SCALE):
                 landcolor = 'rgb(217, 217, 217)'
             )
         )
-    # fig.show()
-    return fig
+    fig.show()
+    # return fig
 
 
 if __name__ == '__main__':
     
-    SPM = "demand" 
-    SCALE = "World"
+    SPM = "Area" 
+    SCALE = "Local, National"
     mapdf = pd.read_csv('mapdata.csv')
     procloc = pd.read_csv('latlng.csv')
     mapplot(mapdf, procloc, SPM, SCALE)
